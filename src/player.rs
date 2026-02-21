@@ -1,5 +1,7 @@
 use bevy::prelude::*;
+use bevy::window::PrimaryWindow;
 use crate::state::GameState;
+use crate::camera::GameCamera;
 
 
 #[derive(Component)]
@@ -41,13 +43,50 @@ fn move_player(
     }
 }
 
+fn player_shoot(
+    input: Res<ButtonInput<MouseButton>>,
+    window: Single<&Window, With<PrimaryWindow>>,
+    camera: Single<(&Camera, &GlobalTransform), With<GameCamera>>,
+    player: Single<&Transform, With<Player>>,
+){
+    //Note: maybe on released isnt instant feed back enough
+    if input.just_released(MouseButton::Left){
+        let (cam, cam_transform) = camera.into_inner();
+        
+        if let Some(cursor_world) = window.cursor_position()
+              .and_then(|cursor| cam.viewport_to_world(cam_transform, cursor).ok())
+              .map(|ray| ray.origin.truncate())
+          {
+              let direction = (cursor_world - player.translation.truncate()).normalize();
+              info!("Shooting toward: {:?}", direction); // todo: actually shoot sumn
+          }
+    }
+}
+
+fn player_interact(
+    input: Res<ButtonInput<KeyCode>>,
+){
+    if input.just_released(KeyCode::KeyE){
+        info!("player_interact no implemented");
+    }
+}
+
 pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         // Player is spawned by level.rs from RON data (player_start)
-        app.add_systems(Update, move_player.run_if(
-            in_state(GameState::Playing))
+        app.add_systems(Update, (
+            move_player.run_if(
+            in_state(GameState::Playing)
+            ),
+            player_shoot.run_if(
+                in_state(GameState::Playing)
+            ),
+            player_interact.run_if(
+                in_state(GameState::Playing)
+            ),
+        )
         );
     }
 }
