@@ -1,18 +1,25 @@
 use bevy::prelude::*;
 mod ascii_sprite;
-mod game_fonts;
-mod state;
-mod player;
 mod camera;
+mod combat;
+mod game_fonts;
 mod helpers;
-use crate::camera::CameraPlugin;
-use crate::player::PlayerPlugin;
+mod physics;
+mod player;
+mod state;
+
+use camera::CameraPlugin;
+use combat::CombatPlugin;
+use physics::PhysicsPlugin;
+use player::PlayerPlugin;
 use ascii_sprite::{render_ascii_sprites, test};
 
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
         .add_plugins(state::StatePlugin)
+        .add_plugins(PhysicsPlugin)
+        .add_plugins(CombatPlugin)
         .add_plugins(PlayerPlugin)
         .add_plugins(CameraPlugin)
         .add_systems(Startup, test)

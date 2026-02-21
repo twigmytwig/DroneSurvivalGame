@@ -2,6 +2,7 @@ use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 use crate::state::GameState;
 use crate::camera::GameCamera;
+use crate::combat::{spawn_player_projectile, Weapon};
 
 
 #[derive(Component)]
@@ -44,21 +45,36 @@ fn move_player(
 }
 
 fn player_shoot(
+    mut commands: Commands,
     input: Res<ButtonInput<MouseButton>>,
     window: Single<&Window, With<PrimaryWindow>>,
     camera: Single<(&Camera, &GlobalTransform), With<GameCamera>>,
-    player: Single<&Transform, With<Player>>,
+    player: Single<(&Transform, &Weapon), With<Player>>,
 ){
-    //Note: maybe on released isnt instant feed back enough
     if input.just_released(MouseButton::Left){
         let (cam, cam_transform) = camera.into_inner();
-        
+        let (transform, weapon) = player.into_inner();
+
+        /*This was hard for me to wrap my little pea brain around so i will explain
+        * window_cursor position gets where on the screen we clicked, useless on its own.
+        * viewport_to_world translates where we clicked on monitor to that in the world.
+        * It does that by taking the world point that the camera is looking at, and doing
+        * math to what the screen click would equal to to world location. (returns Ray3d)
+        * We then truncate that ray to get the vec 2.
+        * Lastly, we do math to determine a direction in which we point at
+         */
         if let Some(cursor_world) = window.cursor_position()
               .and_then(|cursor| cam.viewport_to_world(cam_transform, cursor).ok())
               .map(|ray| ray.origin.truncate())
           {
-              let direction = (cursor_world - player.translation.truncate()).normalize();
-              info!("Shooting toward: {:?}", direction); // todo: actually shoot sumn
+            let direction = (cursor_world - transform.translation.truncate()).normalize();
+            info!("Shooting toward: {:?}", direction);
+            spawn_player_projectile(
+                &mut commands,
+                transform.translation.truncate(),
+                direction,
+                &weapon.config,
+            );
           }
     }
 }
