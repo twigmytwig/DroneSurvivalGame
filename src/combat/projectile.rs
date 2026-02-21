@@ -1,6 +1,9 @@
 use bevy::prelude::*;
 use crate::ascii_sprite::AsciiSprite;
-use crate::physics::Velocity;
+use crate::physics::{CircleHitBox, Velocity};
+
+#[derive(Component)]
+pub struct Lifetimer(pub Timer);
 
 pub struct ProjectileConfig{
     pub projectileShape: String,
@@ -37,15 +40,31 @@ pub fn spawn_player_projectile(
         // Damage(config.damage),  // TODO: add Damage component later
         Projectile,
         PlayerOwned, //THis makes this function only work for the player
+        Lifetimer(Timer::from_seconds(2.0, TimerMode::Once)),
+        CircleHitBox,
     ));
+}
+
+fn tick_lifetimes(
+    mut commands: Commands,
+    time: Res<Time>,
+    mut query: Query<(Entity, &mut Lifetimer)>,
+){
+    for (entity, mut lifetime) in &mut query{
+        lifetime.0.tick(time.delta());
+        if lifetime.0.is_finished(){
+            commands.entity(entity).despawn();
+        }
+    }
 }
 
 pub struct ProjectilePlugin;
 
 impl Plugin for ProjectilePlugin {
-    fn build(&self, _app: &mut App) {
+    fn build(&self, app: &mut App) {
         // Projectiles spawned via spawn_projectile()
         // Collision systems will be added here later
+        app.add_systems(Update, tick_lifetimes);
     }
 }
 
