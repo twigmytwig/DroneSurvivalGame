@@ -1,6 +1,8 @@
 pub mod projectile;
 pub mod weapon;
+pub mod collision;
 
+pub use collision::*;
 pub use projectile::*;
 pub use weapon::*;
 
@@ -10,8 +12,7 @@ pub struct CombatPlugin;
 
   impl Plugin for CombatPlugin {
       fn build(&self, app: &mut App) {
-          app.add_plugins(projectile::ProjectilePlugin);
-          // .add_plugins(collision::CollisionPlugin)
-          // .add_plugins(weapons::WeaponsPlugin)
+          app.add_plugins(projectile::ProjectilePlugin)
+             .add_plugins(collision::CollisionPlugin);
       }
   } 

@@ -19,6 +19,9 @@ pub struct Projectile;
 #[derive(Component)]
 pub struct PlayerOwned;
 
+#[derive(Component)]
+pub struct EnemyOwned;
+
 pub fn spawn_player_projectile(
     commands: &mut Commands,
     position: Vec2,
@@ -27,11 +30,10 @@ pub fn spawn_player_projectile(
 ) {
     commands.spawn((
         Transform::from_translation(position.extend(0.0)),
-        AsciiSprite {
-            glyph: config.projectileShape.clone(),
-            color: config.color,
-            font_size: config.font_size,
-            bg_color: None,
+        Sprite { //hard coded square for now
+          color: config.color,
+          custom_size: Some(Vec2::new(4.0, 4.0)),
+          ..default()
         },
         Velocity {
             direction: direction.normalize(),
@@ -41,7 +43,7 @@ pub fn spawn_player_projectile(
         Projectile,
         PlayerOwned, //THis makes this function only work for the player
         Lifetimer(Timer::from_seconds(2.0, TimerMode::Once)),
-        CircleHitBox,
+        CircleHitBox{ radius: 2.0},
     ));
 }
 
@@ -74,7 +76,7 @@ impl ProjectileConfig{
             projectileShape: "()".to_string(), 
             color: Color::WHITE, 
             font_size: 24.0, 
-            speed: 500.0, 
+            speed: 1000.0, 
             damage: 1 
         }
     }

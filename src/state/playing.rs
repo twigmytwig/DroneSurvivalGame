@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use crate::physics::CircleHitBox;
 use crate::player::Player;
 use crate::ascii_sprite::AsciiSprite;
 use crate::combat::{Weapon, ProjectileConfig};
@@ -18,5 +19,6 @@ pub fn test_spawn_player(
         Weapon {
             config: ProjectileConfig::player_bullet(),
         },
+        CircleHitBox{ radius: 10.0}
     ));
 }
