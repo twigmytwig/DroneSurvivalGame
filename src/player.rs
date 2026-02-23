@@ -67,8 +67,8 @@ fn player_shoot(
               .and_then(|cursor| cam.viewport_to_world(cam_transform, cursor).ok())
               .map(|ray| ray.origin.truncate())
           {
+            //direction we are shooting
             let direction = (cursor_world - transform.translation.truncate()).normalize();
-            info!("Shooting toward: {:?}", direction);
             spawn_player_projectile(
                 &mut commands,
                 transform.translation.truncate(),

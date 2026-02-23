@@ -3,7 +3,7 @@ use crate::physics::{CircleHitBox, DesiredDirection, Velocity, DirectMovement};
 use crate::player::Player;
 use crate::ascii_sprite::AsciiSprite;
 use crate::enemy::Enemy;
-use crate::combat::{Weapon, ProjectileConfig};
+use crate::combat::{Health, ProjectileConfig, Weapon};
 use crate::npc_behaviors::CollideTarget;
 
 pub fn test_spawn_player(
@@ -35,6 +35,7 @@ pub fn test_spawn_player(
             bg_color: None
         },
         Enemy,
+        Health::new(10),
         CircleHitBox { radius: 30.0 },
         // Behavior: collide with player
         CollideTarget { target: player_entity },

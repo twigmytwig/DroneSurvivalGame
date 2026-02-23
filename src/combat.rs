@@ -2,11 +2,13 @@ pub mod projectile;
 pub mod weapon;
 pub mod collision;
 pub mod damage;
+pub mod health;
 
 pub use collision::*;
 pub use projectile::*;
 pub use weapon::*;
 pub use damage::*;
+pub use health::*;
 
 use bevy::prelude::*;
 
