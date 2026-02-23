@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use crate::ascii_sprite::AsciiSprite;
 use crate::physics::{CircleHitBox, Velocity};
+use super::damage::ProjectileDamage;
 
 #[derive(Component)]
 pub struct Lifetimer(pub Timer);
@@ -39,7 +40,7 @@ pub fn spawn_player_projectile(
             direction: direction.normalize(),
             speed: config.speed,
         },
-        // Damage(config.damage),  // TODO: add Damage component later
+        ProjectileDamage(config.damage),
         Projectile,
         PlayerOwned, //THis makes this function only work for the player
         Lifetimer(Timer::from_seconds(2.0, TimerMode::Once)),
