@@ -35,7 +35,7 @@ pub fn test_spawn_player(
             bg_color: None
         },
         Enemy,
-        CircleHitBox { radius: 10.0 },
+        CircleHitBox { radius: 30.0 },
         // Behavior: collide with player
         CollideTarget { target: player_entity },
         // Movement style: direct path

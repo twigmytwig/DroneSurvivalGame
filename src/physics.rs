@@ -20,7 +20,7 @@ impl Plugin for PhysicsPlugin {
     fn build(&self, app: &mut App) {
         app
             .add_plugins(velocity::VelocityPlugin)
-            .add_plugins(movement_styles::MovementStylesPlugin);
-        //.add_plugins(hitbox::HitboxPlugin);
+            .add_plugins(movement_styles::MovementStylesPlugin)
+            .add_plugins(hitbox::HitboxPlugin);
     }
 }
