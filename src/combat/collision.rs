@@ -62,6 +62,7 @@ fn enemy_projectile_hits_player(
     }
 }
 
+//some enemies have explodeoncontact marker which means they should.. explode on contact
 fn enemy_collides_with_player(
     mut commands: Commands,
     mut damage_messages: MessageWriter<DamageEvent>,
