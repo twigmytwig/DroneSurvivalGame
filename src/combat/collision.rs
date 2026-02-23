@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use crate::combat::Dead;
 use crate::enemy::Enemy;
+use crate::npc_behaviors::ExplodeOnContact;
 use crate::physics::{CircleHitBox, circles_overlap};
 use crate::player::Player;
 use super::projectile::{Projectile, PlayerOwned, EnemyOwned};
@@ -64,31 +65,36 @@ fn enemy_projectile_hits_player(
 fn enemy_collides_with_player(
     mut commands: Commands,
     mut damage_messages: MessageWriter<DamageEvent>,
-    enemies: Query<(Entity, &Transform, &CircleHitBox), (With<Enemy>, Without<Dead>)>,
+    enemies: Query<(Entity, &Transform, &CircleHitBox, Option<&ExplodeOnContact>), (With<Enemy>, Without<Dead>)>,
     player: Query<(Entity, &Transform, &CircleHitBox), With<Player>>,
 ) {
     let Ok((player_entity, player_transform, player_hitbox)) = player.single() else {
         return;
     };
 
-    for (enemy_entity, enemy_transform, enemy_hitbox) in &enemies {
+    for (enemy_entity, enemy_transform, enemy_hitbox, explode) in &enemies {
         if circles_overlap(
             enemy_transform.translation.truncate(),
             enemy_hitbox.radius,
             player_transform.translation.truncate(),
             player_hitbox.radius,
         ) {
-            commands.entity(enemy_entity).insert(Dead);// this is to prevent multiple collison events, breaking the game
-            damage_messages.write(DamageEvent {
-                target: player_entity,
-                amount: 5,
-            });
-            // Enemy self-destructs (damage itself for its full health)
-            damage_messages.write(DamageEvent {
-                target: enemy_entity,
-                amount: 9999,  // or query enemy's health.max
-            });
             info!("Enemy collided with player!");
+            if explode.is_some(){
+                info!("Exploding enemy collided with player!");
+                commands.entity(enemy_entity).insert(Dead);// this is to prevent multiple collison events, breaking the game
+                damage_messages.write(DamageEvent {
+                    target: player_entity,
+                    amount: 5,
+                });
+                // Enemy self-destructs (damage itself for its full health)
+                damage_messages.write(DamageEvent {
+                    target: enemy_entity,
+                    amount: 9999,  // or query enemy's health.max
+                });
+            }
+            //collision happend but wasnt an exploder
+            
         }
     }
 }

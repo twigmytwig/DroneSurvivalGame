@@ -113,7 +113,7 @@ impl ProjectileConfig {
             color: Color::srgb(1.0, 0.0, 0.0),
             font_size: 24.0,
             speed: 400.0,
-            damage: 5,
+            damage: 1,
         }
     }
 }

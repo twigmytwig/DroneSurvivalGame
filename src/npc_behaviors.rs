@@ -1,8 +1,10 @@
 mod collide_target;
+mod explode_on_contact;
 mod shoot_at_target;
 
-pub use shoot_at_target::*;
 pub use collide_target::*;
+pub use explode_on_contact::*;
+pub use shoot_at_target::*;
 use bevy::prelude::*;
 
 pub struct NpcBehaviorPlugins;
