@@ -4,7 +4,7 @@ use crate::player::Player;
 use crate::ascii_sprite::AsciiSprite;
 use crate::enemy::Enemy;
 use crate::combat::{Health, HealthBar, ProjectileConfig, Weapon};
-use crate::npc_behaviors::{CollideTarget, ExplodeOnContact, ShootAtTarget};
+use crate::npc_behaviors::{CollideTarget, ExplodeOnContact, MaintainRangeFromTarget, ShootAtTarget};
 
 pub fn test_spawn_player(
     mut commands: Commands
@@ -62,7 +62,7 @@ pub fn test_spawn_player(
         Health::new(10),
         CircleHitBox { radius: 30.0 },
         // Behavior: collide with player
-        CollideTarget { target: player_entity },
+        MaintainRangeFromTarget{target: player_entity, range: 100.0},
         // Movement style: direct path
         DirectMovement,
         // Required for movement
