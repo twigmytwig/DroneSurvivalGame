@@ -9,6 +9,7 @@ mod player;
 mod state;
 mod npc_behaviors;
 mod enemy;
+mod spawning;
 
 use camera::CameraPlugin;
 use combat::CombatPlugin;

@@ -6,6 +6,7 @@ use super::damage::ProjectileDamage;
 #[derive(Component)]
 pub struct Lifetimer(pub Timer);
 
+#[derive(Clone)]
 pub struct ProjectileConfig{
     pub projectileShape: String,
     pub color: Color,
