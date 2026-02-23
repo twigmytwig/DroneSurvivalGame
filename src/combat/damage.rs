@@ -19,7 +19,6 @@ pub struct DamageEvent {
 }
 
 fn apply_damage(
-    mut commands: Commands,
     mut messages: MessageReader<DamageEvent>,
     mut death_messages: MessageWriter<DeathEvent>,
     mut health_query: Query<&mut Health>,

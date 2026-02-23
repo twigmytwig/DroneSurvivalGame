@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use crate::combat::Dead;
 use crate::enemy::Enemy;
 use crate::physics::{CircleHitBox, circles_overlap};
 use crate::player::Player;
@@ -62,7 +63,7 @@ fn enemy_projectile_hits_player(
 fn enemy_collides_with_player(
     mut commands: Commands,
     mut damage_messages: MessageWriter<DamageEvent>,
-    enemies: Query<(Entity, &Transform, &CircleHitBox), With<Enemy>>,
+    enemies: Query<(Entity, &Transform, &CircleHitBox), (With<Enemy>, Without<Dead>)>,
     player: Query<(Entity, &Transform, &CircleHitBox), With<Player>>,
 ) {
     let Ok((player_entity, player_transform, player_hitbox)) = player.single() else {
@@ -76,10 +77,15 @@ fn enemy_collides_with_player(
             player_transform.translation.truncate(),
             player_hitbox.radius,
         ) {
-            commands.entity(enemy_entity).despawn();
+            commands.entity(enemy_entity).insert(Dead);// this is to prevent multiple collison events, breaking the game
             damage_messages.write(DamageEvent {
                 target: player_entity,
-                amount: 10,
+                amount: 5,
+            });
+            // Enemy self-destructs (damage itself for its full health)
+            damage_messages.write(DamageEvent {
+                target: enemy_entity,
+                amount: 9999,  // or query enemy's health.max
             });
             info!("Enemy collided with player!");
         }

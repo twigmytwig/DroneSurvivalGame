@@ -16,8 +16,10 @@ pub struct CombatPlugin;
 
 impl Plugin for CombatPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins(projectile::ProjectilePlugin)
-           .add_plugins(collision::CollisionPlugin)
-           .add_plugins(damage::DamagePlugin);
+        app
+            .add_plugins(projectile::ProjectilePlugin)
+            .add_plugins(collision::CollisionPlugin)
+            .add_plugins(damage::DamagePlugin)
+            .add_plugins(health::HealthPlugin);
     }
 } 
