@@ -4,7 +4,7 @@ use crate::player::Player;
 use crate::ascii_sprite::AsciiSprite;
 use crate::enemy::Enemy;
 use crate::combat::{Health, HealthBar, ProjectileConfig, Weapon};
-use crate::npc_behaviors::CollideTarget;
+use crate::npc_behaviors::{CollideTarget, ShootAtTarget};
 
 pub fn test_spawn_player(
     mut commands: Commands
@@ -68,5 +68,10 @@ pub fn test_spawn_player(
         DesiredDirection::default(),
         HealthBar{max_width:32.0, offset:24.0},
         Velocity { speed: 150.0, direction: Vec2::ZERO },
+        ShootAtTarget {
+          target: player_entity,
+          cooldown: Timer::from_seconds(0.5, TimerMode::Repeating),
+          config: ProjectileConfig::enemy_bullet(),
+      },
     ));
 }

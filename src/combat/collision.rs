@@ -27,6 +27,7 @@ fn player_projectile_hits_enemy(
                     target: enemy_entity,
                     amount: damage.0,
                 });
+                break; // Projectile can only hit one enemy
             }
         }
     }

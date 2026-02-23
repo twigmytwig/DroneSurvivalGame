@@ -25,7 +25,7 @@ pub struct Health {
     pub max: u32,
 }
 
-// Find everyone with Health + HealthBar but no HealthBarSpawned, and attach visual
+// find everyone with Health + HealthBar but no HealthBarSpawned, and attach the shit
 fn attach_health_bars(
     mut commands: Commands,
     query: Query<(Entity, &HealthBar), (With<Health>, Without<HealthBarSpawned>)>,

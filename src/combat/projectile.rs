@@ -61,6 +61,31 @@ fn tick_lifetimes(
     }
 }
 
+pub fn spawn_enemy_projectile(
+    commands: &mut Commands,
+    position: Vec2,
+    direction: Vec2,
+    config: &ProjectileConfig,
+) {
+    commands.spawn((
+        Transform::from_translation(position.extend(0.0)),
+        Sprite {
+            color: config.color,
+            custom_size: Some(Vec2::new(4.0, 4.0)),
+            ..default()
+        },
+        Velocity {
+            direction: direction.normalize(),
+            speed: config.speed,
+        },
+        ProjectileDamage(config.damage),
+        Projectile,
+        EnemyOwned,
+        Lifetimer(Timer::from_seconds(2.0, TimerMode::Once)),
+        CircleHitBox { radius: 2.0 },
+    ));
+}
+
 pub struct ProjectilePlugin;
 
 impl Plugin for ProjectilePlugin {
@@ -71,14 +96,24 @@ impl Plugin for ProjectilePlugin {
     }
 }
 
-impl ProjectileConfig{
-    pub fn player_bullet() -> Self{
-        Self { 
-            projectileShape: "()".to_string(), 
-            color: Color::WHITE, 
-            font_size: 24.0, 
-            speed: 1000.0, 
-            damage: 1 
+impl ProjectileConfig {
+    pub fn player_bullet() -> Self {
+        Self {
+            projectileShape: "()".to_string(),
+            color: Color::WHITE,
+            font_size: 24.0,
+            speed: 1000.0,
+            damage: 1,
+        }
+    }
+
+    pub fn enemy_bullet() -> Self {
+        Self {
+            projectileShape: "o".to_string(),
+            color: Color::srgb(1.0, 0.0, 0.0),
+            font_size: 24.0,
+            speed: 400.0,
+            damage: 5,
         }
     }
 }
