@@ -4,8 +4,13 @@ mod playing;
 
 use bevy::prelude::*;
 use crate::game_fonts::{self, GameFonts};
+use crate::spawning::{
+    countdown_system, spawn_system, check_wave_clear,
+    WaveState, WaveDefinitions,
+};
 
 pub use game_state::GameState;
+pub use game_state::WavePhase;
 
 #[derive(Resource)]
 struct LoadingTimer(Timer);
@@ -29,7 +34,15 @@ impl Plugin for StatePlugin {
         ))
 
         //playing state systems
-        .add_systems(OnEnter(GameState::Playing), playing::test_spawn_player);
+        .add_systems(OnEnter(GameState::Playing), playing::spawn_player)
+
+        // Wave SubState
+        .add_sub_state::<WavePhase>()
+        .init_resource::<WaveState>()
+        .init_resource::<WaveDefinitions>()
+        .add_systems(Update, countdown_system.run_if(in_state(WavePhase::Countdown)))
+        .add_systems(Update, spawn_system.run_if(in_state(WavePhase::Spawning)))
+        .add_systems(Update, check_wave_clear.run_if(in_state(WavePhase::InProgress)));
     }
 }
 

@@ -4,5 +4,16 @@ use bevy::prelude::*;
 pub enum GameState{
     #[default]
     Loading,
-    Playing
+    Playing,
+    GameOver,
+}
+
+#[derive(SubStates, Default, Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[source(GameState = GameState::Playing)]
+pub enum WavePhase {
+    #[default]
+    Countdown,   // Brief pause before wave
+    Spawning,    // Actively spawning drones
+    InProgress,  // All spawned, waiting for kills
+    Complete,    // All waves done (victory)
 }
