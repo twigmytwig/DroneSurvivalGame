@@ -2,6 +2,8 @@
 //and how much damage it took
 
 use bevy::prelude::*;
+use crate::{player::Player, state::GameState};
+
 use super::health::Health;
 
 #[derive(Message)]
@@ -37,9 +39,16 @@ fn apply_damage(
 
 fn apply_death(
     mut commands: Commands,
+    player_query: Single<Entity, With<Player>>,
     mut death_messages: MessageReader<DeathEvent>,
+    mut next_state: ResMut<NextState<GameState>>,
 ) {
     for event in death_messages.read() {
+        if event.entity.index() == player_query.index(){
+            commands.entity(event.entity).despawn();
+            //game over phase
+            next_state.set(GameState::GameOver);
+        }
         commands.entity(event.entity).despawn();
     }
 }

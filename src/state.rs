@@ -1,6 +1,7 @@
 mod game_state;
 mod loading;
 mod playing;
+mod game_over;
 
 use bevy::prelude::*;
 use crate::game_fonts::{self, GameFonts};
@@ -9,6 +10,7 @@ use crate::spawning::{
     WaveState, WaveDefinitions,
 };
 
+pub use game_over::toggle_restart;
 pub use game_state::GameState;
 pub use game_state::WavePhase;
 
@@ -35,6 +37,14 @@ impl Plugin for StatePlugin {
 
         //playing state systems
         .add_systems(OnEnter(GameState::Playing), playing::spawn_player)
+
+        //Game Over systems
+        .add_systems(OnEnter(GameState::GameOver), (
+            game_over::cleanup_game_entities,
+            game_over::spawn_game_over_menu,
+        ))
+        .add_systems(OnExit(GameState::GameOver), game_over::despawn_game_over_menu)
+        .add_systems(Update, toggle_restart.run_if(in_state(GameState::GameOver)))
 
         // Wave SubState
         .add_sub_state::<WavePhase>()
