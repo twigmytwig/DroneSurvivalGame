@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use bevy::prelude::*;
 use crate::physics::CircleHitBox;
 use crate::player::Player;
@@ -16,6 +18,7 @@ pub fn spawn_player(mut commands: Commands) {
         Player,
         Weapon {
             config: ProjectileConfig::player_bullet(),
+            fire_cooldown: Timer::new(Duration::from_secs_f32(0.5) , TimerMode::Repeating)
         },
         CircleHitBox { radius: 10.0 },
         Health::new(10),

@@ -46,14 +46,20 @@ fn move_player(
 
 fn player_shoot(
     mut commands: Commands,
+    time: Res<Time>,
     input: Res<ButtonInput<MouseButton>>,
     window: Single<&Window, With<PrimaryWindow>>,
     camera: Single<(&Camera, &GlobalTransform), With<GameCamera>>,
-    player: Single<(&Transform, &Weapon), With<Player>>,
+    player: Single<(&Transform, &mut Weapon), With<Player>>,
 ){
-    if input.just_released(MouseButton::Left){
+    let (transform, mut weapon) = player.into_inner();
+
+    // Always tick cooldown
+    weapon.fire_cooldown.tick(time.delta());
+
+    // Fire if holding mouse AND cooldown ready
+    if input.pressed(MouseButton::Left) && weapon.fire_cooldown.just_finished() {
         let (cam, cam_transform) = camera.into_inner();
-        let (transform, weapon) = player.into_inner();
 
         /*This was hard for me to wrap my little pea brain around so i will explain
         * window_cursor position gets where on the screen we clicked, useless on its own.
@@ -62,11 +68,11 @@ fn player_shoot(
         * math to what the screen click would equal to to world location. (returns Ray3d)
         * We then truncate that ray to get the vec 2.
         * Lastly, we do math to determine a direction in which we point at
-         */
+        */
         if let Some(cursor_world) = window.cursor_position()
-              .and_then(|cursor| cam.viewport_to_world(cam_transform, cursor).ok())
-              .map(|ray| ray.origin.truncate())
-          {
+            .and_then(|cursor| cam.viewport_to_world(cam_transform, cursor).ok())
+            .map(|ray| ray.origin.truncate())
+        {
             //direction we are shooting
             let direction = (cursor_world - transform.translation.truncate()).normalize();
             spawn_player_projectile(
@@ -75,7 +81,7 @@ fn player_shoot(
                 direction,
                 &weapon.config,
             );
-          }
+        }
     }
 }
 

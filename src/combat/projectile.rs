@@ -1,5 +1,4 @@
 use bevy::prelude::*;
-use crate::ascii_sprite::AsciiSprite;
 use crate::physics::{CircleHitBox, Velocity};
 use super::damage::ProjectileDamage;
 
