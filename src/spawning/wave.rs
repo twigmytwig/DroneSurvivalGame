@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use crate::enemy::Enemy;
+use crate::{enemy::Enemy, state::GameState};
 use crate::player::Player;
 use crate::state::WavePhase;
 use super::{spawn_drone, DroneConfig};
@@ -120,6 +120,7 @@ pub fn check_wave_clear(
     mut wave_state: ResMut<WaveState>,
     wave_defs: Res<WaveDefinitions>,
     mut next_phase: ResMut<NextState<WavePhase>>,
+    mut next_state: ResMut<NextState<GameState>>,
 ) {
     if enemy_query.iter().count() == 0 {
         info!("Wave {} cleared!", wave_state.wave_number + 1);
@@ -131,6 +132,7 @@ pub fn check_wave_clear(
         if wave_state.wave_number >= wave_defs.waves.len() {
             info!("All waves complete! Victory!");
             next_phase.set(WavePhase::Complete);
+            next_state.set(GameState::Victory);
         } else {
             info!("Starting countdown for wave {}", wave_state.wave_number + 1);
             next_phase.set(WavePhase::Countdown);
