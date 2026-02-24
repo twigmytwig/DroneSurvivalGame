@@ -2,20 +2,22 @@ use bevy::prelude::*;
 mod ascii_sprite;
 mod camera;
 mod combat;
+mod enemy;
 mod game_fonts;
 mod helpers;
+mod npc_behaviors;
 mod physics;
 mod player;
-mod state;
-mod npc_behaviors;
-mod enemy;
+mod resources;
 mod spawning;
+mod state;
 
 use camera::CameraPlugin;
 use combat::CombatPlugin;
 use physics::PhysicsPlugin;
 use player::PlayerPlugin;
 use ascii_sprite::render_ascii_sprites;
+use resources::{DropTable, ResourcePlugin};
 
 use crate::npc_behaviors::NpcBehaviorPlugins;
 
@@ -28,6 +30,8 @@ fn main() {
         .add_plugins(PlayerPlugin)
         .add_plugins(CameraPlugin)
         .add_plugins(NpcBehaviorPlugins)
+        .add_plugins(ResourcePlugin)
+        .init_resource::<DropTable>()
         .add_systems(Update, render_ascii_sprites)
         .run();
 }

@@ -1,6 +1,17 @@
 use bevy::prelude::*;
 use crate::combat::ProjectileConfig;
 
+#[derive(Clone, Copy, Hash, PartialEq, Eq)]
+pub enum DroneKind{
+    Chaser,
+    Shooter,
+}
+
+#[derive(Component)]
+pub struct DroneType{
+    pub drone_type: DroneKind,
+}
+
 /// Configuration data for spawning a drone (not a component itself)
 #[derive(Clone)]
 pub struct DroneConfig {
@@ -15,6 +26,7 @@ pub struct DroneConfig {
     pub speed: f32,
     pub behaviors: Vec<BehaviorConfig>,
     pub movement: MovementConfig,
+    pub drone_type: DroneKind
 }
 
 /// Individual behaviors that can be mixed and matched
@@ -50,7 +62,8 @@ impl DroneConfig {
                 BehaviorConfig::ExplodeOnContact { damage: 5 },
             ],
             health_bar_width: 32.0,
-            health_bar_offset: 24.0
+            health_bar_offset: 24.0,
+            drone_type: DroneKind::Chaser,
         }
     }
 
@@ -73,7 +86,8 @@ impl DroneConfig {
                 },
             ],
             health_bar_width: 32.0,
-            health_bar_offset: 24.0
+            health_bar_offset: 24.0,
+            drone_type: DroneKind::Shooter
         }
     }
 }

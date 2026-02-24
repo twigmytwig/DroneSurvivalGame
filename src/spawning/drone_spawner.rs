@@ -5,7 +5,7 @@ use crate::{
     enemy::Enemy,
     npc_behaviors::{CollideTarget, ExplodeOnContact, MaintainRangeFromTarget, ShootAtTarget},
     physics::{CircleHitBox, DesiredDirection, DirectMovement, Velocity},
-    spawning::MovementConfig
+    spawning::{DroneType, MovementConfig}
 };
 use super::{DroneConfig, BehaviorConfig};
 
@@ -32,7 +32,8 @@ pub fn spawn_drone(
         Velocity{speed: config.speed, direction: Vec2::ZERO},
         DesiredDirection::default(),
         Health::new(config.health),
-        HealthBar {max_width: config.health_bar_width, offset: config.health_bar_offset}
+        HealthBar {max_width: config.health_bar_width, offset: config.health_bar_offset},
+        DroneType{drone_type: config.drone_type}
     ));
 
     match &config.movement{

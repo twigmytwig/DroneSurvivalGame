@@ -3,6 +3,7 @@ use bevy::prelude::*;
 use crate::combat::Projectile;
 use crate::enemy::Enemy;
 use crate::player::Player;
+use crate::resources::ResourceDrop;
 use crate::spawning::WaveState;
 use crate::state::GameState;
 
@@ -51,6 +52,7 @@ pub fn cleanup_game_entities(
     players: Query<Entity, With<Player>>,
     enemies: Query<Entity, With<Enemy>>,
     projectiles: Query<Entity, With<Projectile>>,
+    resources: Query<Entity, With<ResourceDrop>>,
     mut wave_state: ResMut<WaveState>,
 ) {
     for entity in players.iter() {
@@ -60,6 +62,9 @@ pub fn cleanup_game_entities(
         commands.entity(entity).despawn();
     }
     for entity in projectiles.iter() {
+        commands.entity(entity).despawn();
+    }
+    for entity in resources.iter() {
         commands.entity(entity).despawn();
     }
 

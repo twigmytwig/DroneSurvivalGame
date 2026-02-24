@@ -2,7 +2,13 @@
 //and how much damage it took
 
 use bevy::prelude::*;
-use crate::{player::Player, state::GameState};
+use rand::{Rng, RngExt};
+use crate::{
+    player::Player,
+    resources::DropTable,
+    spawning::{spawn_resources, DroneType},
+    state::GameState,
+};
 
 use super::health::Health;
 
@@ -42,13 +48,32 @@ fn apply_death(
     player_query: Single<Entity, With<Player>>,
     mut death_messages: MessageReader<DeathEvent>,
     mut next_state: ResMut<NextState<GameState>>,
+    drone_query: Query<(&DroneType, &Transform)>,
+    drop_table: Res<DropTable>,
 ) {
+    let mut rng = rand::rng();
+
     for event in death_messages.read() {
         if event.entity.index() == player_query.index(){
             commands.entity(event.entity).despawn();
             //game over phase
             next_state.set(GameState::GameOver);
         }
+
+        // Check if it's a drone and spawn resources
+        if let Ok((drone_type, transform)) = drone_query.get(event.entity) {
+            let pos = transform.translation.truncate();
+
+            if let Some(drop_list) = drop_table.table.get(&drone_type.drone_type) {
+                for drop in drop_list {
+                    let count = rng.random_range(drop.min..=drop.max);
+                    if count > 0 {
+                        spawn_resources(&mut commands, drop.resource, pos, count);
+                    }
+                }
+            }
+        }
+
         commands.entity(event.entity).despawn();
     }
 }
