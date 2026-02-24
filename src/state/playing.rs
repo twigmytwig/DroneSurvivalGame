@@ -1,6 +1,7 @@
 use std::time::Duration;
 
 use bevy::prelude::*;
+use crate::inventory::Inventory;
 use crate::physics::CircleHitBox;
 use crate::player::Player;
 use crate::ascii_sprite::AsciiSprite;
@@ -23,5 +24,6 @@ pub fn spawn_player(mut commands: Commands) {
         CircleHitBox { radius: 10.0 },
         Health::new(10),
         HealthBar { max_width: 32.0, offset: 24.0 },
+        Inventory::default(),
     ));
 }

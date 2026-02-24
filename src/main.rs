@@ -11,6 +11,7 @@ mod player;
 mod resources;
 mod spawning;
 mod state;
+mod inventory;
 
 use camera::CameraPlugin;
 use combat::CombatPlugin;
