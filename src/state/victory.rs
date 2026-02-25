@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use crate::audio::{play_music, MusicTrack};
 
 #[derive(Component)]
 pub struct VictoryMenu;
@@ -26,16 +27,29 @@ pub fn spawn_victory_menu(mut commands: Commands) {
         ));
     });
     
-    info!("Defeat menu spawned");
+    info!("Victory menu spawned");
+}
+
+pub fn play_victory_music(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+) {
+    play_music(&mut commands, &asset_server, "sounds/music/action_man.mp3");
 }
 
 pub fn despawn_victory_menu(
     mut commands: Commands,
     query: Query<Entity, With<VictoryMenu>>,
+    music_query: Query<Entity, With<MusicTrack>>,
 ) {
     for entity in query.iter() {
         commands.entity(entity).despawn();
     }
-    
-    info!("Defeat menu despawned");
+
+    // Stop victory music
+    for entity in &music_query {
+        commands.entity(entity).despawn();
+    }
+
+    info!("Victory menu despawned");
 }

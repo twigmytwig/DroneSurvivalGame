@@ -4,7 +4,7 @@
 use bevy::prelude::*;
 use rand::{Rng, RngExt};
 use crate::{
-    player::{self, Player},
+    player::Player,
     resources::DropTable,
     spawning::{DroneType, spawn_resources},
     state::GameState,
@@ -56,9 +56,10 @@ fn apply_death(
 
     for event in death_messages.read() {
         if event.entity.index() == player_query.index(){
-            commands.entity(event.entity).despawn();
+            commands.entity(event.entity).try_despawn();
             //game over phase
             next_state.set(GameState::GameOver);
+            continue; // Don't try to despawn again at end of loop
         }
 
         // Check if it's a drone and spawn resources
@@ -75,7 +76,7 @@ fn apply_death(
             }
         }
 
-        commands.entity(event.entity).despawn();
+        commands.entity(event.entity).try_despawn();
     }
 }
 
@@ -86,7 +87,7 @@ impl Plugin for DamagePlugin {
         app
             .add_message::<DamageEvent>()
             .add_message::<DeathEvent>()
-            .add_systems(Update, apply_damage)
-            .add_systems(Update, apply_death);
+            .add_systems(Update, apply_damage.run_if(in_state(GameState::Playing)))
+            .add_systems(Update, apply_death.run_if(in_state(GameState::Playing)));
     }
 }

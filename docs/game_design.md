@@ -330,10 +330,13 @@ Addressing issues from previous `bevy_game` implementation:
 - [Complete] Player movement and combat
 - [Complete] Basic drone enemies with spawning
 - [Complete] Wave system with progression
-- [ ] Resource drops and collection
+- [Complete] Resource drops and collection
 - [ ] Basic crafting (ammo, beacon)
 - [Partially complete] Win condition (beacon + final wave)
 - [Complete] Game over / victory screens
+- [ ] Inventory screen (view resources)
+- [ ] Music and sound effects
+- [ ] Audio preloading (load sounds at startup)
 
 ### Supporting Infrastructure
 

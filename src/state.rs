@@ -43,6 +43,7 @@ impl Plugin for StatePlugin {
         .add_systems(OnEnter(GameState::GameOver), (
             game_over::cleanup_game_entities,
             game_over::spawn_game_over_menu,
+            game_over::play_game_over_music,
         ))
         .add_systems(OnExit(GameState::GameOver), game_over::despawn_game_over_menu)
         .add_systems(Update, toggle_restart.run_if(in_state(GameState::GameOver)))
@@ -51,6 +52,7 @@ impl Plugin for StatePlugin {
         .add_systems(OnEnter(GameState::Victory), (
             game_over::cleanup_game_entities,//reusing this from game over
             victory::spawn_victory_menu,
+            victory::play_victory_music,
         ))
         .add_systems(OnExit(GameState::Victory), victory::despawn_victory_menu)
         .add_systems(Update, toggle_restart.run_if(in_state(GameState::Victory)))

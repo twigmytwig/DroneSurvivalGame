@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 
+use crate::audio::{play_music, stop_music, MusicTrack};
 use crate::combat::Projectile;
 use crate::enemy::Enemy;
 use crate::player::Player;
@@ -36,14 +37,27 @@ pub fn spawn_game_over_menu(mut commands: Commands) {
     info!("Defeat menu spawned");
 }
 
+pub fn play_game_over_music(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+) {
+    play_music(&mut commands, &asset_server, "sounds/music/game_over_track.mp3");
+}
+
 pub fn despawn_game_over_menu(
     mut commands: Commands,
     query: Query<Entity, With<GameOverMenu>>,
+    music_query: Query<Entity, With<MusicTrack>>,
 ) {
     for entity in query.iter() {
         commands.entity(entity).despawn();
     }
-    
+
+    // Stop game over music
+    for entity in &music_query {
+        commands.entity(entity).despawn();
+    }
+
     info!("Defeat menu despawned");
 }
 

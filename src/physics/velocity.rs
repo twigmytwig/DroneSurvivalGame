@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use crate::state::GameState;
 
 #[derive(Component)]
 pub struct Velocity{
@@ -21,6 +22,6 @@ pub struct VelocityPlugin;
 
 impl Plugin for VelocityPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, apply_velocity);
+        app.add_systems(Update, apply_velocity.run_if(in_state(GameState::Playing)));
     }
 }

@@ -1,6 +1,6 @@
 // maintain a certain range to a target
 use bevy::prelude::*;
-use crate::physics::DesiredDirection;
+use crate::{physics::DesiredDirection, state::GameState};
 
 #[derive(Component)]
 pub struct MaintainRangeFromTarget {
@@ -38,6 +38,6 @@ pub struct MaintainRangePlugin;
 
 impl Plugin for MaintainRangePlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, maintain_range_system);
+        app.add_systems(Update, maintain_range_system.run_if(in_state(GameState::Playing)));
     }
 }

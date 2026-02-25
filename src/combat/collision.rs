@@ -4,8 +4,10 @@ use crate::enemy::Enemy;
 use crate::npc_behaviors::ExplodeOnContact;
 use crate::physics::{CircleHitBox, circles_overlap};
 use crate::player::Player;
+use crate::state::GameState;
 use super::projectile::{Projectile, PlayerOwned, EnemyOwned};
 use super::damage::{ProjectileDamage, DamageEvent};
+use crate::audio::play_sfx;
 
 // Player bullets hit enemies
 fn player_projectile_hits_enemy(
@@ -37,6 +39,7 @@ fn player_projectile_hits_enemy(
 // Enemy bullets hit player
 fn enemy_projectile_hits_player(
     mut commands: Commands,
+    asset_server: Res<AssetServer>,
     mut damage_messages: MessageWriter<DamageEvent>,
     projectiles: Query<(Entity, &Transform, &CircleHitBox, &ProjectileDamage), (With<Projectile>, With<EnemyOwned>)>,
     player: Query<(Entity, &Transform, &CircleHitBox), With<Player>>,
@@ -52,6 +55,8 @@ fn enemy_projectile_hits_player(
             player_transform.translation.truncate(),
             player_hitbox.radius,
         ) {
+            //player hit sfx TODO: MIGHT NEED A BETTER SYSTEM FOR THIS
+            play_sfx(&mut commands, &asset_server, "character_hit", "mp3");
             commands.entity(proj_entity).despawn();
             info!("Enemy projectile hit player!");
             damage_messages.write(DamageEvent {
@@ -65,6 +70,7 @@ fn enemy_projectile_hits_player(
 //some enemies have explodeoncontact marker which means they should.. explode on contact
 fn enemy_collides_with_player(
     mut commands: Commands,
+    asset_server: Res<AssetServer>,
     mut damage_messages: MessageWriter<DamageEvent>,
     enemies: Query<(Entity, &Transform, &CircleHitBox, Option<&ExplodeOnContact>), (With<Enemy>, Without<Dead>)>,
     player: Query<(Entity, &Transform, &CircleHitBox), With<Player>>,
@@ -82,7 +88,10 @@ fn enemy_collides_with_player(
         ) {
             info!("Enemy collided with player!");
             if explode.is_some(){
+                //player hit sfx TODO: MIGHT NEED A BETTER SYSTEM FOR THIS
+                play_sfx(&mut commands, &asset_server, "player_hit_explosion", "mp3");
                 info!("Exploding enemy collided with player!");
+
                 commands.entity(enemy_entity).insert(Dead);// this is to prevent multiple collison events, breaking the game
                 damage_messages.write(DamageEvent {
                     target: player_entity,
@@ -105,8 +114,8 @@ pub struct CollisionPlugin;
 impl Plugin for CollisionPlugin {
     fn build(&self, app: &mut App) {
         app
-            .add_systems(Update, enemy_projectile_hits_player)
-            .add_systems(Update, player_projectile_hits_enemy)
-            .add_systems(Update, enemy_collides_with_player);
+            .add_systems(Update, enemy_projectile_hits_player.run_if(in_state(GameState::Playing)))
+            .add_systems(Update, player_projectile_hits_enemy.run_if(in_state(GameState::Playing)))
+            .add_systems(Update, enemy_collides_with_player.run_if(in_state(GameState::Playing)));
     }
 }

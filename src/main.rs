@@ -12,6 +12,7 @@ mod resources;
 mod spawning;
 mod state;
 mod inventory;
+mod audio;
 
 use camera::CameraPlugin;
 use combat::CombatPlugin;

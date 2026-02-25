@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{inventory::Inventory, resources::ResourceDrop};
+use crate::{inventory::Inventory, resources::ResourceDrop, state::GameState};
 use super::inventory_component::add_resource;
 
 const PICKUP_DISTANCE: f32 = 20.0;
@@ -48,7 +48,7 @@ fn handle_pickup(
             && let Ok(resource) = resources.get(message.resource_entity)
         {
             add_resource(&mut inventory, resource.resource_type, 1);
-            commands.entity(message.resource_entity).despawn();
+            commands.entity(message.resource_entity).try_despawn();
         }
     }
 }
@@ -58,6 +58,6 @@ pub struct PickupPlugin;
 impl Plugin for PickupPlugin {
     fn build(&self, app: &mut App) {
         app.add_message::<PickupEvent>()
-            .add_systems(Update, (detect_resource_pickup, handle_pickup).chain());
+            .add_systems(Update, (detect_resource_pickup, handle_pickup).chain().run_if(in_state(GameState::Playing)));
     }
 }

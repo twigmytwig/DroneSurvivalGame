@@ -1,7 +1,7 @@
 //firing a projectile at a target
 
 use bevy::prelude::*;
-use crate::combat::{spawn_enemy_projectile, ProjectileConfig};
+use crate::{combat::{spawn_enemy_projectile, ProjectileConfig}, state::GameState};
 
 #[derive(Component)]
 pub struct ShootAtTarget {
@@ -41,6 +41,6 @@ pub struct ShootAtTargetPlugin;
 
 impl Plugin for ShootAtTargetPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, shoot_at_target_system);
+        app.add_systems(Update, shoot_at_target_system.run_if(in_state(GameState::Playing)));
     }
 }

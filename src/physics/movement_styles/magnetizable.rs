@@ -2,7 +2,7 @@
 //It should take in a target, a setting for fade in/out of magnetism, and speed at peak
 //IDEA: What if we just lerp the beginning and lerp the end?
 use bevy::prelude::*;
-use crate::{helpers::lerp, physics::{DesiredDirection, Velocity}};
+use crate::{helpers::lerp, physics::{DesiredDirection, Velocity}, state::GameState};
 
 /// Marks an entity as magnetized to a target within a range
 #[derive(Component)]
@@ -62,6 +62,6 @@ pub struct MagnetismPlugin;
 
 impl Plugin for MagnetismPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, (magnetized_to_system, magnetic_attraction_system).chain());
+        app.add_systems(Update, (magnetized_to_system, magnetic_attraction_system).chain().run_if(in_state(GameState::Playing)));
     }
 }

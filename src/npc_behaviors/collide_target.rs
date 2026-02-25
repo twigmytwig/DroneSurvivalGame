@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use crate::physics::DesiredDirection;
+use crate::{physics::DesiredDirection, state::GameState};
 
 #[derive(Component)]
   pub struct CollideTarget {
@@ -26,6 +26,6 @@ pub struct CollideTargetPlugin;
 
 impl Plugin for CollideTargetPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, collide_target_system);
+        app.add_systems(Update, collide_target_system.run_if(in_state(GameState::Playing)));
     }
 }

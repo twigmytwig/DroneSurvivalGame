@@ -54,7 +54,7 @@ fn tick_resource_lifetimes(
         timer.0.tick(time.delta());
 
         if timer.0.just_finished() {
-            commands.entity(entity).despawn();
+            commands.entity(entity).try_despawn();
             continue;
         }
 

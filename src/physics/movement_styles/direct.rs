@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use crate::physics::{DesiredDirection, Velocity};
+use crate::{physics::{DesiredDirection, Velocity}, state::GameState};
 
 #[derive(Component)]
 pub struct DirectMovement;
@@ -19,6 +19,6 @@ pub struct DirectMovementPlugin;
 
 impl Plugin for DirectMovementPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, move_direct);
+        app.add_systems(Update, move_direct.run_if(in_state(GameState::Playing)));
     }
 }
