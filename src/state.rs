@@ -3,8 +3,10 @@ mod loading;
 mod playing;
 mod game_over;
 mod victory;
+mod paused;
 
 use bevy::prelude::*;
+use bevy::time::common_conditions::paused;
 use crate::game_fonts::{self, GameFonts};
 use crate::spawning::{
     countdown_system, spawn_system, check_wave_clear,
@@ -36,8 +38,14 @@ impl Plugin for StatePlugin {
             loading::despawn_loading_screen,
         ))
 
+        //paused state systems
+        .add_systems(OnEnter(GameState::Paused), paused::spawn_pause_menu)
+        .add_systems(OnExit(GameState::Paused), paused::despawn_pause_menu)
+        .add_systems(Update, toggle_pause)
+
         //playing state systems
         .add_systems(OnEnter(GameState::Playing), playing::spawn_player)
+        .add_systems(Update, toggle_pause)
 
         //Game Over systems
         .add_systems(OnEnter(GameState::GameOver), (
@@ -86,6 +94,26 @@ fn check_assets_loaded(
         info!("Assets loaded, transitioning to Playing!");
         if timer.0.is_finished(){
             next_state.set(GameState::Playing);
+        }
+    }
+}
+
+fn toggle_pause( // ALSO HANDLES RESTARTING GAME TODO: DONT PUT RESTART LOGIC IN HERE
+    input: Res<ButtonInput<KeyCode>>,
+    current_state: Res<State<GameState>>,
+    mut next_state: ResMut<NextState<GameState>>,
+) {
+    if input.just_pressed(KeyCode::Escape) {
+        match current_state.get() {
+            GameState::Playing => {
+                info!("Game paused");
+                next_state.set(GameState::Paused);
+            }
+            GameState::Paused => {
+                info!("Game resumed");
+                next_state.set(GameState::Playing);
+            }
+            _ => {}
         }
     }
 }
