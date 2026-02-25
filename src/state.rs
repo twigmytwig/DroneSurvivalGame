@@ -15,6 +15,7 @@ use crate::spawning::{
 
 pub use game_over::toggle_restart;
 pub use game_state::GameState;
+pub use game_state::InGame;
 pub use game_state::WavePhase;
 
 #[derive(Resource)]
@@ -65,7 +66,11 @@ impl Plugin for StatePlugin {
         .add_systems(OnExit(GameState::Victory), victory::despawn_victory_menu)
         .add_systems(Update, toggle_restart.run_if(in_state(GameState::Victory)))
 
-        // Wave SubState
+        // InGame computed state (active during Playing OR Paused)
+        // Must be registered before WavePhase since WavePhase depends on it
+        .add_computed_state::<game_state::InGame>()
+
+        // Wave SubState (now sources from InGame, so it persists across pause)
         .add_sub_state::<WavePhase>()
         .init_resource::<WaveState>()
         .init_resource::<WaveDefinitions>()
