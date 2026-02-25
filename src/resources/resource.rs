@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-#[derive(Clone, Copy, PartialEq, Eq)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash)]
 pub enum ResourceType {
     ScrapMetal,
     Circuitry,

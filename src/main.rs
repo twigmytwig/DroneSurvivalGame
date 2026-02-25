@@ -15,6 +15,7 @@ mod inventory;
 
 use camera::CameraPlugin;
 use combat::CombatPlugin;
+use inventory::PickupPlugin;
 use physics::PhysicsPlugin;
 use player::PlayerPlugin;
 use ascii_sprite::render_ascii_sprites;
@@ -32,6 +33,7 @@ fn main() {
         .add_plugins(CameraPlugin)
         .add_plugins(NpcBehaviorPlugins)
         .add_plugins(ResourcePlugin)
+        .add_plugins(PickupPlugin)
         .init_resource::<DropTable>()
         .add_systems(Update, render_ascii_sprites)
         .run();

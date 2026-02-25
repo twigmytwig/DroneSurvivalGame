@@ -18,3 +18,21 @@ fn read_resource_inventory(inventory: &Inventory) {
         info!("{}: {}", resource_type.name(), count);
     }
 }
+
+pub fn add_resource(
+    inventory: &mut Inventory,
+    resource: ResourceType,
+    count: u32,
+){
+    *inventory.resource_inventory.entry(resource).or_insert(0) += count;
+}
+
+pub fn remove_resource(
+    inventory: &mut Inventory,
+    resource: ResourceType,
+    count: u32,
+){
+    if let Some(cur_count) = inventory.resource_inventory.get_mut(&resource){
+        *cur_count = count.saturating_sub(count);
+    }
+}
