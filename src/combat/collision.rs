@@ -12,6 +12,7 @@ use crate::audio::play_sfx;
 // Player bullets hit enemies
 fn player_projectile_hits_enemy(
     mut commands: Commands,
+    asset_server: Res<AssetServer>,
     mut damage_messages: MessageWriter<DamageEvent>,
     projectiles: Query<(Entity, &Transform, &CircleHitBox, &ProjectileDamage), (With<Projectile>, With<PlayerOwned>)>,
     enemies: Query<(Entity, &Transform, &CircleHitBox), With<Enemy>>,
@@ -24,6 +25,7 @@ fn player_projectile_hits_enemy(
                 enemy_transform.translation.truncate(),
                 enemy_hitbox.radius,
             ) {
+                play_sfx(&mut commands, &asset_server, "player_shoot", "mp3");
                 commands.entity(proj_entity).despawn();
                 info!("Player projectile hit enemy!");
                 damage_messages.write(DamageEvent {
