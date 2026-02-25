@@ -4,9 +4,9 @@
 use bevy::prelude::*;
 use rand::{Rng, RngExt};
 use crate::{
-    player::Player,
+    player::{self, Player},
     resources::DropTable,
-    spawning::{spawn_resources, DroneType},
+    spawning::{DroneType, spawn_resources},
     state::GameState,
 };
 
@@ -50,6 +50,7 @@ fn apply_death(
     mut next_state: ResMut<NextState<GameState>>,
     drone_query: Query<(&DroneType, &Transform)>,
     drop_table: Res<DropTable>,
+    player: Single<Entity, With<Player>>,
 ) {
     let mut rng = rand::rng();
 
@@ -68,7 +69,7 @@ fn apply_death(
                 for drop in drop_list {
                     let count = rng.random_range(drop.min..=drop.max);
                     if count > 0 {
-                        spawn_resources(&mut commands, drop.resource, pos, count);
+                        spawn_resources(&mut commands, drop.resource, pos, count, player.entity());
                     }
                 }
             }
