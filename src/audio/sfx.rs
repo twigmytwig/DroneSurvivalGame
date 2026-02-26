@@ -14,6 +14,6 @@ pub fn play_sfx(
         .load(format!("sounds/sfx/{}.{}",name,file_type));
     commands.spawn((
         AudioPlayer::new(handle),
-        PlaybackSettings::DESPAWN.with_volume(Volume::Linear(sound_settings.sfx/100.0)),
+        PlaybackSettings::DESPAWN.with_volume(Volume::Linear((sound_settings.master / 100.0) * (sound_settings.sfx/100.0))),
     ));
 }

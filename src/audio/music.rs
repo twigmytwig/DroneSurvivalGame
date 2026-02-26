@@ -16,7 +16,7 @@ pub fn play_music(
 ) -> Entity {
     commands.spawn((
         AudioPlayer::new(asset_server.load(path.to_string())),
-        PlaybackSettings::LOOP.with_volume(Volume::Linear(sound_settings.music/100.0)),
+        PlaybackSettings::LOOP.with_volume(Volume::Linear((sound_settings.master / 100.0) * (sound_settings.sfx/100.0))),
         MusicTrack,
     )).id()
 }
