@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy::ecs::hierarchy::ChildSpawnerCommands;
 
-use crate::state::{GameState, PauseScreen};
+use crate::{audio::AudioSettings, state::{GameState, PauseScreen}};
 
 // =============================================================================
 // MARKER COMPONENTS (for despawning each menu)
@@ -261,7 +261,7 @@ pub fn handle_settings_buttons(
 // AUDIO MENU (Volume sliders / Back)
 // =============================================================================
 
-pub fn spawn_audio_menu(mut commands: Commands) {
+pub fn spawn_audio_menu(mut commands: Commands, audio_settings: Res<AudioSettings>) {
     commands.spawn((
         AudioMenu,
         Node {
@@ -283,13 +283,13 @@ pub fn spawn_audio_menu(mut commands: Commands) {
         ));
 
         // Master volume control
-        spawn_volume_row(parent, "Master", VolumeCategory::Master, 50);
+        spawn_volume_row(parent, "Master", VolumeCategory::Master, audio_settings.master as i32);
 
         // SFX volume control
-        spawn_volume_row(parent, "SFX", VolumeCategory::Sfx, 70);
+        spawn_volume_row(parent, "SFX", VolumeCategory::Sfx, audio_settings.sfx as i32);
 
         // Music volume control
-        spawn_volume_row(parent, "Music", VolumeCategory::Music, 40);
+        spawn_volume_row(parent, "Music", VolumeCategory::Music, audio_settings.music as i32);
 
         // Back button
         parent.spawn((
@@ -417,16 +417,31 @@ pub fn handle_audio_buttons(
 pub fn handle_volume_buttons(
     volume_button_query: Query<(&Interaction, &VolumeAdjustButton), Changed<Interaction>>,
     mut audio_settings: ResMut<AudioSettings>,
-)
-{
-    for (interaction, volumeButton) in &volume_button_query{
-        //actually change shit
-        if *interaction == Interaction::Pressed{
-            match volumeButton.category {
-                VolumeCategory::Master => info!("master"),
-                VolumeCategory::Music => info!("music"),
-                VolumeCategory::Sfx => info!("sfx"),
-                _ => info!("Nothing!"),
+    mut text_query: Query<(&mut Text, &VolumeValueText)>,
+) {
+    for (interaction, volume_button) in &volume_button_query {
+        if *interaction == Interaction::Pressed {
+            // Update the setting
+            let new_value = match volume_button.category {
+                VolumeCategory::Master => {
+                    audio_settings.master = (audio_settings.master + volume_button.delta as f32).clamp(0.0, 100.0);
+                    audio_settings.master
+                }
+                VolumeCategory::Music => {
+                    audio_settings.music = (audio_settings.music + volume_button.delta as f32).clamp(0.0, 100.0);
+                    audio_settings.music
+                }
+                VolumeCategory::Sfx => {
+                    audio_settings.sfx = (audio_settings.sfx + volume_button.delta as f32).clamp(0.0, 100.0);
+                    audio_settings.sfx
+                }
+            };
+
+            // Update the display text
+            for (mut text, value_text) in &mut text_query {
+                if value_text.0 == volume_button.category {
+                    **text = format!("{}%", new_value as i32);
+                }
             }
         }
     }

@@ -7,7 +7,7 @@ use crate::player::Player;
 use crate::state::GameState;
 use super::projectile::{Projectile, PlayerOwned, EnemyOwned};
 use super::damage::{ProjectileDamage, DamageEvent};
-use crate::audio::play_sfx;
+use crate::audio::{AudioSettings, play_sfx};
 
 // Player bullets hit enemies
 fn player_projectile_hits_enemy(
@@ -16,6 +16,7 @@ fn player_projectile_hits_enemy(
     mut damage_messages: MessageWriter<DamageEvent>,
     projectiles: Query<(Entity, &Transform, &CircleHitBox, &ProjectileDamage), (With<Projectile>, With<PlayerOwned>)>,
     enemies: Query<(Entity, &Transform, &CircleHitBox), With<Enemy>>,
+    sound_setting: Res<AudioSettings>,
 ) {
     for (proj_entity, proj_transform, proj_hitbox, damage) in &projectiles {
         for (enemy_entity, enemy_transform, enemy_hitbox) in &enemies {
@@ -25,7 +26,8 @@ fn player_projectile_hits_enemy(
                 enemy_transform.translation.truncate(),
                 enemy_hitbox.radius,
             ) {
-                play_sfx(&mut commands, &asset_server, "player_shoot", "mp3");
+                info!("SOund settings: {},{},{}", sound_setting.master,sound_setting.music,sound_setting.sfx);
+                play_sfx(&mut commands, &asset_server, "player_shoot", "mp3", &sound_setting);
                 commands.entity(proj_entity).despawn();
                 info!("Player projectile hit enemy!");
                 damage_messages.write(DamageEvent {
@@ -45,6 +47,7 @@ fn enemy_projectile_hits_player(
     mut damage_messages: MessageWriter<DamageEvent>,
     projectiles: Query<(Entity, &Transform, &CircleHitBox, &ProjectileDamage), (With<Projectile>, With<EnemyOwned>)>,
     player: Query<(Entity, &Transform, &CircleHitBox), With<Player>>,
+    sound_setting: Res<AudioSettings>,
 ) {
     let Ok((player_entity, player_transform, player_hitbox)) = player.single() else {
         return;
@@ -58,7 +61,7 @@ fn enemy_projectile_hits_player(
             player_hitbox.radius,
         ) {
             //player hit sfx TODO: MIGHT NEED A BETTER SYSTEM FOR THIS
-            play_sfx(&mut commands, &asset_server, "character_hit", "mp3");
+            play_sfx(&mut commands, &asset_server, "character_hit", "mp3",&sound_setting);
             commands.entity(proj_entity).despawn();
             info!("Enemy projectile hit player!");
             damage_messages.write(DamageEvent {
@@ -76,6 +79,7 @@ fn enemy_collides_with_player(
     mut damage_messages: MessageWriter<DamageEvent>,
     enemies: Query<(Entity, &Transform, &CircleHitBox, Option<&ExplodeOnContact>), (With<Enemy>, Without<Dead>)>,
     player: Query<(Entity, &Transform, &CircleHitBox), With<Player>>,
+    sound_setting: Res<AudioSettings>,
 ) {
     let Ok((player_entity, player_transform, player_hitbox)) = player.single() else {
         return;
@@ -91,7 +95,7 @@ fn enemy_collides_with_player(
             info!("Enemy collided with player!");
             if explode.is_some(){
                 //player hit sfx TODO: MIGHT NEED A BETTER SYSTEM FOR THIS
-                play_sfx(&mut commands, &asset_server, "player_hit_explosion", "mp3");
+                play_sfx(&mut commands, &asset_server, "player_hit_explosion", "mp3",&sound_setting);
                 info!("Exploding enemy collided with player!");
 
                 commands.entity(enemy_entity).insert(Dead);// this is to prevent multiple collison events, breaking the game

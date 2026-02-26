@@ -1,4 +1,7 @@
 use bevy::prelude::*;
+use bevy::audio::Volume;
+
+use crate::audio::AudioSettings;
 
 /// Marker component to identify music entities for stopping later
 #[derive(Component)]
@@ -9,10 +12,11 @@ pub fn play_music(
     commands: &mut Commands,
     asset_server: &AssetServer,
     path: &str,
+    sound_settings: &AudioSettings,
 ) -> Entity {
     commands.spawn((
         AudioPlayer::new(asset_server.load(path.to_string())),
-        PlaybackSettings::LOOP,
+        PlaybackSettings::LOOP.with_volume(Volume::Linear(sound_settings.music/100.0)),
         MusicTrack,
     )).id()
 }

@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use crate::audio::{play_music, MusicTrack};
+use crate::audio::{AudioSettings, MusicTrack, play_music};
 
 #[derive(Component)]
 pub struct VictoryMenu;
@@ -33,8 +33,9 @@ pub fn spawn_victory_menu(mut commands: Commands) {
 pub fn play_victory_music(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
+    sound_setting: Res<AudioSettings>,
 ) {
-    play_music(&mut commands, &asset_server, "sounds/music/action_man.mp3");
+    play_music(&mut commands, &asset_server, "sounds/music/action_man.mp3", &sound_setting);
 }
 
 pub fn despawn_victory_menu(

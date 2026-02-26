@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::audio::{play_music, stop_music, MusicTrack};
+use crate::audio::{AudioSettings, MusicTrack, play_music, stop_music};
 use crate::combat::Projectile;
 use crate::enemy::Enemy;
 use crate::player::Player;
@@ -40,8 +40,9 @@ pub fn spawn_game_over_menu(mut commands: Commands) {
 pub fn play_game_over_music(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
+    sound_setting: Res<AudioSettings>,
 ) {
-    play_music(&mut commands, &asset_server, "sounds/music/game_over_track.mp3");
+    play_music(&mut commands, &asset_server, "sounds/music/game_over_track.mp3", &sound_setting);
 }
 
 pub fn despawn_game_over_menu(
