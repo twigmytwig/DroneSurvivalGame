@@ -42,7 +42,7 @@ impl Plugin for StatePlugin {
         //paused state systems
         .add_systems(OnEnter(GameState::Paused), paused::spawn_pause_menu)
         .add_systems(OnExit(GameState::Paused), paused::despawn_pause_menu)
-        .add_systems(Update, toggle_pause)
+        .add_systems(Update, paused::handle_button_clicks)
 
         //playing state systems
         .add_systems(OnEnter(GameState::Playing), playing::spawn_player)
@@ -85,7 +85,7 @@ fn check_assets_loaded(
     time: Res<Time>,
     fonts: Option<Res<GameFonts>>, //we defined htis resource in game_fonts
     font_assets: Res<Assets<Font>>, //bevys internal storage for all loaded fonts
-    mut next_state: ResMut<NextState<GameState>>, //bevy defined resourece
+    mut next_state: ResMut<NextState<GameState>>,
     mut timer: ResMut<LoadingTimer>,
 ) {
     timer.0.tick(time.delta());

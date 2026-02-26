@@ -1,5 +1,7 @@
 use bevy::prelude::*;
 
+use crate::state::GameState;
+
 #[derive(Component)]
 pub struct PauseMenu;
 
@@ -8,6 +10,24 @@ pub enum PauseButton {
     Resume,
     Settings,
     Quit,
+}
+
+pub fn handle_button_clicks(
+    query: Query<(&Interaction, &PauseButton), Changed<Interaction>>,
+    mut next_state: ResMut<NextState<GameState>>, //bevy defined resourece
+    mut exit: MessageWriter<AppExit>,
+){
+    for (interaction, button) in &query{
+        if *interaction == Interaction::Pressed{
+            //this button was pressed
+            match button{
+                PauseButton::Resume => next_state.set(GameState::Playing),
+                PauseButton::Settings => info!("TODO: implement settings screen"),
+                PauseButton::Quit => {exit.write(AppExit::Success);},
+                _ => info!("Nuttin"),
+            }
+        }
+    }
 }
 
 pub fn spawn_pause_menu(mut commands: Commands){
