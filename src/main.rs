@@ -15,6 +15,7 @@ mod inventory;
 mod audio;
 
 use camera::CameraPlugin;
+use audio::settings::AudioSettings;
 use combat::CombatPlugin;
 use inventory::PickupPlugin;
 use physics::PhysicsPlugin;
@@ -36,6 +37,7 @@ fn main() {
         .add_plugins(ResourcePlugin)
         .add_plugins(PickupPlugin)
         .init_resource::<DropTable>()
+        .init_resource::<AudioSettings>()
         .add_systems(Update, render_ascii_sprites)
         .run();
 }

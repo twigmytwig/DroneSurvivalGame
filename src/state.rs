@@ -56,7 +56,7 @@ impl Plugin for StatePlugin {
         // Audio settings (PauseScreen::Audio)
         .add_systems(OnEnter(PauseScreen::Audio), paused::spawn_audio_menu)
         .add_systems(OnExit(PauseScreen::Audio), paused::despawn_audio_menu)
-        .add_systems(Update, paused::handle_audio_buttons.run_if(in_state(PauseScreen::Audio)))
+        .add_systems(Update, (paused::handle_audio_buttons.run_if(in_state(PauseScreen::Audio)), paused::handle_volume_buttons.run_if(in_state(PauseScreen::Audio))))
 
         //playing state systems
         .add_systems(OnEnter(GameState::Playing), playing::spawn_player)

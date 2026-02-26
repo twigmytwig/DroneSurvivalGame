@@ -414,7 +414,20 @@ pub fn handle_audio_buttons(
     }
 }
 
-pub fn handle_volume_buttons()
+pub fn handle_volume_buttons(
+    volume_button_query: Query<(&Interaction, &VolumeAdjustButton), Changed<Interaction>>,
+    mut audio_settings: ResMut<AudioSettings>,
+)
 {
-
+    for (interaction, volumeButton) in &volume_button_query{
+        //actually change shit
+        if *interaction == Interaction::Pressed{
+            match volumeButton.category {
+                VolumeCategory::Master => info!("master"),
+                VolumeCategory::Music => info!("music"),
+                VolumeCategory::Sfx => info!("sfx"),
+                _ => info!("Nothing!"),
+            }
+        }
+    }
 }
