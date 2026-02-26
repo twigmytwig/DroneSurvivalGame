@@ -16,6 +16,7 @@ use crate::spawning::{
 pub use game_over::toggle_restart;
 pub use game_state::GameState;
 pub use game_state::InGame;
+pub use game_state::PauseScreen;
 pub use game_state::WavePhase;
 
 #[derive(Resource)]
@@ -39,10 +40,23 @@ impl Plugin for StatePlugin {
             loading::despawn_loading_screen,
         ))
 
-        //paused state systems
-        .add_systems(OnEnter(GameState::Paused), paused::spawn_pause_menu)
-        .add_systems(OnExit(GameState::Paused), paused::despawn_pause_menu)
-        .add_systems(Update, paused::handle_button_clicks)
+        // PauseScreen SubState (tracks which screen while paused)
+        .add_sub_state::<PauseScreen>()
+
+        // Main pause menu (PauseScreen::Main)
+        .add_systems(OnEnter(PauseScreen::Main), paused::spawn_pause_menu)
+        .add_systems(OnExit(PauseScreen::Main), paused::despawn_pause_menu)
+        .add_systems(Update, paused::handle_pause_buttons.run_if(in_state(PauseScreen::Main)))
+
+        // Settings menu (PauseScreen::Settings)
+        .add_systems(OnEnter(PauseScreen::Settings), paused::spawn_settings_menu)
+        .add_systems(OnExit(PauseScreen::Settings), paused::despawn_settings_menu)
+        .add_systems(Update, paused::handle_settings_buttons.run_if(in_state(PauseScreen::Settings)))
+
+        // Audio settings (PauseScreen::Audio)
+        .add_systems(OnEnter(PauseScreen::Audio), paused::spawn_audio_menu)
+        .add_systems(OnExit(PauseScreen::Audio), paused::despawn_audio_menu)
+        .add_systems(Update, paused::handle_audio_buttons.run_if(in_state(PauseScreen::Audio)))
 
         //playing state systems
         .add_systems(OnEnter(GameState::Playing), playing::spawn_player)

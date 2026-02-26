@@ -41,3 +41,17 @@ pub enum WavePhase {
     InProgress,  // All spawned, waiting for kills
     Complete,    // All waves done (victory)
 }
+
+/// SubState that tracks which screen you're viewing while GameState::Paused is active.
+/// This is NOT a replacement for Paused - it's a child state that only exists during Paused.
+/// When you unpause, PauseScreen disappears. When you pause again, it resets to Main.
+///
+/// Navigation: Main -> Settings -> Audio (Back buttons return to previous screen)
+#[derive(SubStates, Default, Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[source(GameState = GameState::Paused)]
+pub enum PauseScreen {
+    #[default]
+    Main,      // Resume / Settings / Quit
+    Settings,  // Audio / Back
+    Audio,     // Volume sliders / Back
+}

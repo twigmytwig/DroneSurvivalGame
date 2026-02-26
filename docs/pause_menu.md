@@ -83,7 +83,7 @@ PlaybackSettings {
 }
 ```
 
-### 3. Add GameState::Paused
+### 3. Add GameState::Paused and PauseScreen SubState
 
 **File:** `src/state/game_state.rs`
 
@@ -95,7 +95,18 @@ pub enum GameState {
     GameOver,
     Victory,
 }
+
+// SubState for switching between pause menu screens
+#[derive(SubStates, Default, Clone, Copy, PartialEq, Eq, Hash, Debug)]
+#[source(GameState = GameState::Paused)]
+pub enum PauseScreen {
+    #[default]
+    Main,       // Resume/Settings/Quit buttons
+    Settings,   // Volume sliders + Back button
+}
 ```
+
+When entering `Paused`, `PauseScreen` defaults to `Main`. Clicking Settings transitions to `PauseScreen::Settings`. Clicking Back returns to `PauseScreen::Main`. When unpausing, the SubState resets automatically.
 
 ### 4. Pause Menu UI
 
@@ -103,9 +114,10 @@ pub enum GameState {
 
 #### Components
 
-- `PauseMenu` - root marker
-- `PauseButton(PauseAction)` - enum variant for Resume/Settings/Quit
-- `SettingsMenu` - settings panel marker
+- `PauseMenu` - main pause menu root marker
+- `SettingsMenu` - settings menu root marker
+- `PauseButton` - enum variant for Resume/Settings/Quit
+- `SettingsButton` - enum variant for Back
 - `VolumeSlider { category }` - which volume (Master/SFX/Music)
 - `SliderFill` - the colored fill bar
 
@@ -113,30 +125,40 @@ pub enum GameState {
 
 | System | Trigger | Description |
 |--------|---------|-------------|
-| `spawn_pause_menu` | OnEnter(Paused) | Creates pause menu UI |
-| `despawn_pause_menu` | OnExit(Paused) | Removes pause menu |
-| `handle_pause_input` | Update, Playing | ESC → Paused |
-| `handle_resume_input` | Update, Paused | ESC → Playing |
-| `handle_button_clicks` | Update, Paused | Button interactions |
-| `handle_slider_click` | Update, Paused | Volume slider input |
-| `update_slider_display` | Update, Paused | Sync fill width to value |
+| `spawn_pause_menu` | OnEnter(PauseScreen::Main) | Creates main pause menu UI |
+| `despawn_pause_menu` | OnExit(PauseScreen::Main) | Removes main pause menu |
+| `spawn_settings_menu` | OnEnter(PauseScreen::Settings) | Creates settings menu UI |
+| `despawn_settings_menu` | OnExit(PauseScreen::Settings) | Removes settings menu |
+| `handle_button_clicks` | Update, PauseScreen::Main | Resume/Settings/Quit buttons |
+| `handle_settings_buttons` | Update, PauseScreen::Settings | Back button |
+| `handle_slider_click` | Update, PauseScreen::Settings | Volume slider input |
+| `update_slider_display` | Update, PauseScreen::Settings | Sync fill width to value |
+| `toggle_pause` | Update | ESC toggles Playing ↔ Paused |
 
 ### 5. Register in StatePlugin
 
 **File:** `src/state.rs`
 
 ```rust
-// Paused state
-.add_systems(OnEnter(GameState::Paused), paused::spawn_pause_menu)
-.add_systems(OnExit(GameState::Paused), paused::despawn_pause_menu)
+// PauseScreen SubState (must register before using)
+.add_sub_state::<PauseScreen>()
+
+// Main pause menu (PauseScreen::Main)
+.add_systems(OnEnter(PauseScreen::Main), paused::spawn_pause_menu)
+.add_systems(OnExit(PauseScreen::Main), paused::despawn_pause_menu)
+.add_systems(Update, paused::handle_button_clicks.run_if(in_state(PauseScreen::Main)))
+
+// Settings menu (PauseScreen::Settings)
+.add_systems(OnEnter(PauseScreen::Settings), paused::spawn_settings_menu)
+.add_systems(OnExit(PauseScreen::Settings), paused::despawn_settings_menu)
 .add_systems(Update, (
-    paused::handle_button_clicks,
+    paused::handle_settings_buttons,
     paused::handle_slider_click,
     paused::update_slider_display,
-).run_if(in_state(GameState::Paused)))
+).run_if(in_state(PauseScreen::Settings)))
 
-// ESC to pause (during Playing)
-.add_systems(Update, paused::handle_pause_input.run_if(in_state(GameState::Playing)))
+// ESC to toggle pause (runs always, checks state internally)
+.add_systems(Update, toggle_pause)
 ```
 
 ---
