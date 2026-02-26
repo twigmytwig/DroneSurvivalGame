@@ -335,7 +335,8 @@ Addressing issues from previous `bevy_game` implementation:
 - [Partially complete] Win condition (beacon + final wave)
 - [Complete] Game over / victory screens
 - [ ] Inventory screen (view resources)
-- [ ] Music and sound effects
+- [Complete] Music and sound effects
+- [Complete] Audio settings (pause menu with volume controls)
 - [ ] Audio preloading (load sounds at startup)
 
 ### Supporting Infrastructure
