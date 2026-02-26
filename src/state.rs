@@ -25,7 +25,7 @@ pub struct StatePlugin;
 impl Plugin for StatePlugin {
     fn build(&self, app: &mut App) {
         app
-        .insert_resource(LoadingTimer(Timer::from_seconds(1.0, TimerMode::Once)))
+        .insert_resource(LoadingTimer(Timer::from_seconds(6.0, TimerMode::Once)))
         .init_state::<GameState>()
         
         // Loading state systems

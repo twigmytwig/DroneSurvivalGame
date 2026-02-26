@@ -15,6 +15,8 @@ pub fn spawn_loading_screen(mut commands: Commands) {
             height: Val::Percent(100.0),
             justify_content: JustifyContent::Center,
             align_items: AlignItems::Center,
+            flex_direction: FlexDirection::Column,
+            row_gap: Val::Px(30.0),
             ..default()
         },
         BackgroundColor(Color::srgb(0.1, 0.1, 0.15)),
@@ -28,8 +30,17 @@ pub fn spawn_loading_screen(mut commands: Commands) {
             },
             TextColor(Color::WHITE),
         ));
+
+        parent.spawn((
+            Text::new("Tip: Annoyed with the sound effects? Me too! Press ESC while playing to see audio settings!"),
+            TextFont {
+                font_size: 16.0,
+                ..default()
+            },
+            TextColor(Color::srgb(0.6, 0.6, 0.6)),
+        ));
     });
-    
+
     info!("Loading screen spawned");
 }
 
