@@ -39,24 +39,26 @@ pub enum AudioButton {
 }
 
 // =============================================================================
-// SLIDER COMPONENTS (for audio settings UI)
+// VOLUME CONTROL COMPONENTS (for audio settings UI)
 // =============================================================================
 
-#[derive(Component, Clone, Copy)]
-pub enum VolumeSlider {
+#[derive(Component, Clone, Copy, PartialEq, Eq)]
+pub enum VolumeCategory {
     Master,
     Sfx,
     Music,
 }
 
+/// Button to adjust volume (+10% or -10%)
 #[derive(Component)]
-pub struct SliderBar;
+pub struct VolumeAdjustButton {
+    pub category: VolumeCategory,
+    pub delta: i32,  // +10 or -10
+}
 
+/// Text displaying the current volume percentage
 #[derive(Component)]
-pub struct SliderFill;
-
-#[derive(Component)]
-pub struct SliderValue;
+pub struct VolumeValueText(pub VolumeCategory);
 
 // =============================================================================
 // MAIN PAUSE MENU (Resume / Settings / Quit)
@@ -280,14 +282,14 @@ pub fn spawn_audio_menu(mut commands: Commands) {
             TextColor(Color::WHITE),
         ));
 
-        // Master volume slider
-        spawn_slider_row(parent, "Master", VolumeSlider::Master, 0.5);
+        // Master volume control
+        spawn_volume_row(parent, "Master", VolumeCategory::Master, 50);
 
-        // SFX volume slider
-        spawn_slider_row(parent, "SFX", VolumeSlider::Sfx, 0.7);
+        // SFX volume control
+        spawn_volume_row(parent, "SFX", VolumeCategory::Sfx, 70);
 
-        // Music volume slider
-        spawn_slider_row(parent, "Music", VolumeSlider::Music, 0.4);
+        // Music volume control
+        spawn_volume_row(parent, "Music", VolumeCategory::Music, 40);
 
         // Back button
         parent.spawn((
@@ -311,18 +313,18 @@ pub fn spawn_audio_menu(mut commands: Commands) {
     });
 }
 
-/// Helper to spawn a slider row - called from within with_children closure
-fn spawn_slider_row(
-    parent: &mut ChildSpawnerCommands, 
-    label: &str, 
-    slider_type: VolumeSlider, 
-    initial_value: f32
+/// Helper to spawn a volume control row: Label [ - ] 50% [ + ]
+fn spawn_volume_row(
+    parent: &mut ChildSpawnerCommands,
+    label: &str,
+    category: VolumeCategory,
+    initial_value: i32
 ) {
     parent.spawn((
         Node {
             flex_direction: FlexDirection::Row,
             align_items: AlignItems::Center,
-            column_gap: Val::Px(15.0),
+            column_gap: Val::Px(10.0),
             ..default()
         },
     )).with_children(|row: &mut ChildSpawnerCommands| {
@@ -337,43 +339,58 @@ fn spawn_slider_row(
             },
         ));
 
-        // Slider bar (background + fill)
+        // Minus button
         row.spawn((
-            Button,  // Makes it clickable
-            SliderBar,
-            slider_type,
+            Button,
+            VolumeAdjustButton { category, delta: -10 },
             Node {
-                width: Val::Px(200.0),
-                height: Val::Px(20.0),
+                width: Val::Px(40.0),
+                height: Val::Px(40.0),
+                justify_content: JustifyContent::Center,
+                align_items: AlignItems::Center,
                 ..default()
             },
-            BackgroundColor(Color::srgb(0.2, 0.2, 0.2)),
-        )).with_children(|bar: &mut ChildSpawnerCommands| {
-            // Fill (width based on value)
-            bar.spawn((
-                SliderFill,
-                slider_type,
-                Node {
-                    width: Val::Percent(initial_value * 100.0),
-                    height: Val::Percent(100.0),
-                    ..default()
-                },
-                BackgroundColor(Color::srgb(0.4, 0.7, 0.4)),
+            BackgroundColor(Color::srgb(0.3, 0.3, 0.3)),
+        )).with_children(|btn: &mut ChildSpawnerCommands| {
+            btn.spawn((
+                Text::new("-"),
+                TextFont { font_size: 24.0, ..default() },
+                TextColor(Color::WHITE),
             ));
         });
 
         // Value text
         row.spawn((
-            Text::new(format!("{}%", (initial_value * 100.0) as i32)),
+            Text::new(format!("{}%", initial_value)),
             TextFont { font_size: 20.0, ..default() },
             TextColor(Color::WHITE),
-            SliderValue,
-            slider_type,
+            VolumeValueText(category),
             Node {
-                width: Val::Px(50.0),
+                width: Val::Px(60.0),
+                justify_content: JustifyContent::Center,
                 ..default()
             },
         ));
+
+        // Plus button
+        row.spawn((
+            Button,
+            VolumeAdjustButton { category, delta: 10 },
+            Node {
+                width: Val::Px(40.0),
+                height: Val::Px(40.0),
+                justify_content: JustifyContent::Center,
+                align_items: AlignItems::Center,
+                ..default()
+            },
+            BackgroundColor(Color::srgb(0.3, 0.3, 0.3)),
+        )).with_children(|btn: &mut ChildSpawnerCommands| {
+            btn.spawn((
+                Text::new("+"),
+                TextFont { font_size: 24.0, ..default() },
+                TextColor(Color::WHITE),
+            ));
+        });
     });
 }
 
@@ -383,6 +400,7 @@ pub fn despawn_audio_menu(mut commands: Commands, query: Query<Entity, With<Audi
     }
 }
 
+//the menu buttons, not the actual audio setting changers
 pub fn handle_audio_buttons(
     query: Query<(&Interaction, &AudioButton), Changed<Interaction>>,
     mut next_pause_screen: ResMut<NextState<PauseScreen>>,
@@ -394,4 +412,9 @@ pub fn handle_audio_buttons(
             }
         }
     }
+}
+
+pub fn handle_volume_buttons()
+{
+
 }
