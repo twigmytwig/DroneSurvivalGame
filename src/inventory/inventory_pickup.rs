@@ -40,7 +40,7 @@ fn detect_resource_pickup(
 fn handle_pickup(
     mut commands: Commands,
     mut inventories: Query<&mut Inventory>,
-    mut pickup_messages: MessageReader<PickupEvent>,
+    mut pickup_messages: MessageReader<PickupEvent>, 
     resources: Query<&ResourceDrop>,
 ) {
     for message in pickup_messages.read() {
@@ -49,6 +49,7 @@ fn handle_pickup(
         {
             add_resource(&mut inventory, resource.resource_type, 1);
             commands.entity(message.resource_entity).try_despawn();
+            //spawn it into hotbar!
         }
     }
 }

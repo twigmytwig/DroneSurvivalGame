@@ -337,7 +337,7 @@ Addressing issues from previous `bevy_game` implementation:
 - [ ] Inventory screen (view resources)
 - [Complete] Music and sound effects
 - [Complete] Audio settings (pause menu with volume controls)
-- [ ] Audio preloading (load sounds at startup)
+- [Complete] Audio preloading (load sounds at startup)
 
 ### Supporting Infrastructure
 

@@ -57,7 +57,9 @@ impl Plugin for StatePlugin {
         .add_systems(Update, (paused::handle_audio_buttons.run_if(in_state(PauseScreen::Audio)), paused::handle_volume_buttons.run_if(in_state(PauseScreen::Audio))))
 
         //playing state systems
-        .add_systems(OnEnter(GameState::Playing), playing::spawn_player)
+        .add_systems(OnEnter(GameState::Playing), (playing::spawn_player, crate::inventory::spawn_hotbar))
+        .add_systems(OnExit(GameState::Playing), crate::inventory::despawn_hotbar)
+        .add_systems(Update, crate::inventory::update_hotbar.run_if(in_state(GameState::Playing)))
         .add_systems(Update, toggle_pause)
 
         //Game Over systems
