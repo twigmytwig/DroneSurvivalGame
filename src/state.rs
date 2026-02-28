@@ -5,6 +5,8 @@ mod game_over;
 mod victory;
 mod paused;
 
+use crate::crafting;
+
 use bevy::prelude::*;
 use crate::game_fonts;
 use crate::spawning::{
@@ -46,6 +48,16 @@ impl Plugin for StatePlugin {
         .add_systems(OnExit(PauseScreen::Main), paused::despawn_pause_menu)
         .add_systems(Update, paused::handle_pause_buttons.run_if(in_state(PauseScreen::Main)))
 
+        //crafting menu
+        .add_systems(OnEnter(GameState::Crafting), crafting::spawn_crafting_ui)
+        .add_systems(OnExit(GameState::Crafting), crafting::despawn_crafting_ui)
+        .add_systems(Update, (
+            crafting::toggle_crafting,
+            crafting::handle_close_button,
+            crafting::handle_craft_buttons,
+            crafting::update_crafting_ui,
+        ).run_if(in_state(GameState::Crafting)))
+
         // Settings menu (PauseScreen::Settings)
         .add_systems(OnEnter(PauseScreen::Settings), paused::spawn_settings_menu)
         .add_systems(OnExit(PauseScreen::Settings), paused::despawn_settings_menu)
@@ -61,6 +73,7 @@ impl Plugin for StatePlugin {
         .add_systems(OnExit(GameState::Playing), crate::inventory::despawn_hotbar)
         .add_systems(Update, crate::inventory::update_hotbar.run_if(in_state(GameState::Playing)))
         .add_systems(Update, toggle_pause)
+        .add_systems(Update, crafting::toggle_crafting.run_if(in_state(GameState::Playing)))
 
         //Game Over systems
         .add_systems(OnEnter(GameState::GameOver), (

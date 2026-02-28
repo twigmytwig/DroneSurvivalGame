@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 use bevy::ecs::hierarchy::ChildSpawnerCommands;
+use crate::combat::WeaponType;
 use crate::inventory::Inventory;
 use crate::player::Player;
 use crate::resources::ResourceType;
@@ -99,6 +100,12 @@ pub fn despawn_hotbar(mut commands: Commands, query: Query<Entity, With<Hotbar>>
     }
 }
 
+/// A displayable item in the hotbar (resource or weapon)
+enum HotbarItem {
+    Resource { glyph: &'static str, color: Color, count: u32 },
+    Weapon { glyph: &'static str, color: Color },
+}
+
 /// Syncs the hotbar display with the player's inventory
 pub fn update_hotbar(
     player_query: Query<&Inventory, With<Player>>,
@@ -107,16 +114,45 @@ pub fn update_hotbar(
 ) {
     let Ok(inventory) = player_query.single() else { return };
 
-    // Collect inventory into sorted vec for consistent slot ordering
-    // TODO: This is hard coded for resource inventory but will obviously acount for other types in the future
-    let mut items: Vec<(&ResourceType, &u32)> = inventory.resource_inventory.iter().collect();
-    items.sort_by_key(|(r, _)| r.name());
+    // Collect all items into a unified list
+    let mut items: Vec<(&str, HotbarItem)> = Vec::new();
+
+    // Add resources
+    for (resource_type, &count) in &inventory.resource_inventory {
+        items.push((
+            resource_type.name(),
+            HotbarItem::Resource {
+                glyph: resource_type.glyph(),
+                color: resource_type.color(),
+                count,
+            },
+        ));
+    }
+
+    // Add weapons
+    for weapon_type in &inventory.weapons_inventory {
+        items.push((
+            weapon_type.name(),
+            HotbarItem::Weapon {
+                glyph: weapon_type.glyph(),
+                color: weapon_type.color(),
+            },
+        ));
+    }
+
+    // Sort by name for consistent ordering
+    items.sort_by_key(|(name, _)| *name);
 
     // Update glyphs
     for (mut text, mut color, glyph) in &mut glyphs {
-        if let Some(item) = items.get(glyph.0) {
-            **text = item.0.glyph().into();
-            *color = TextColor(item.0.color());
+        if let Some((_, item)) = items.get(glyph.0) {
+            match item {
+                HotbarItem::Resource { glyph: g, color: c, .. } |
+                HotbarItem::Weapon { glyph: g, color: c } => {
+                    **text = (*g).into();
+                    *color = TextColor(*c);
+                }
+            }
         } else {
             **text = String::new();
         }
@@ -124,8 +160,15 @@ pub fn update_hotbar(
 
     // Update counts
     for (mut text, count_marker) in &mut counts {
-        if let Some(item) = items.get(count_marker.0) {
-            **text = item.1.to_string();
+        if let Some((_, item)) = items.get(count_marker.0) {
+            match item {
+                HotbarItem::Resource { count, .. } => {
+                    **text = count.to_string();
+                }
+                HotbarItem::Weapon { .. } => {
+                    **text = String::new(); // weapons don't stack
+                }
+            }
         } else {
             **text = String::new();
         }
