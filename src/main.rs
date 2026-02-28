@@ -13,6 +13,7 @@ mod spawning;
 mod state;
 mod inventory;
 mod audio;
+mod crafting;
 
 use camera::CameraPlugin;
 use audio::settings::AudioSettings;

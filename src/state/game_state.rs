@@ -6,11 +6,12 @@ pub enum GameState{
     Loading,
     Paused,
     Playing,
+    Crafting,
     GameOver,
     Victory,
 }
 
-/// Computed state that's active when the game is "in progress" (Playing or Paused).
+/// Computed state that's active when the game is "in progress" (Playing, Crafting or Paused).
 /// This allows SubStates like WavePhase to persist across pause/unpause.
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub enum InGame {
@@ -24,7 +25,7 @@ impl ComputedStates for InGame {
     // Return Some(InGame::Yes) when active, None when inactive
     fn compute(source: GameState) -> Option<Self> {
         match source {
-            GameState::Playing | GameState::Paused => Some(InGame::Yes),
+            GameState::Playing | GameState::Crafting | GameState::Paused => Some(InGame::Yes),
             _ => None,
         }
     }

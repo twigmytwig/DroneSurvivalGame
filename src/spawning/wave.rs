@@ -53,6 +53,19 @@ impl Default for WaveDefinitions {
                         DroneConfig::shooter(),
                     ],
                 },
+                // Wave 3: 3 chasers + 5 shooters
+                WaveDefinition {
+                    drones: vec![
+                        DroneConfig::chaser(),
+                        DroneConfig::chaser(),
+                        DroneConfig::chaser(),
+                        DroneConfig::shooter(),
+                        DroneConfig::shooter(),
+                        DroneConfig::shooter(),
+                        DroneConfig::shooter(),
+                        DroneConfig::shooter(),
+                    ],
+                },
             ],
         }
     }
