@@ -39,6 +39,15 @@ pub fn spawn_loading_screen(mut commands: Commands) {
             },
             TextColor(Color::srgb(0.6, 0.6, 0.6)),
         ));
+
+        parent.spawn((
+            Text::new("Tip 2: Press TAB to craft"),
+            TextFont {
+                font_size: 16.0,
+                ..default()
+            },
+            TextColor(Color::srgb(0.6, 0.6, 0.6)),
+        ));
     });
 
     info!("Loading screen spawned");
