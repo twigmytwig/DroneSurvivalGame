@@ -2,7 +2,7 @@ use bevy::{platform::collections::HashSet, prelude::*};
 use std::collections::HashMap;
 use crate::{combat::WeaponType, resources::ResourceType};
 
-#[derive(Component, Default)]
+#[derive(Component)]
 pub struct Inventory{
     pub resource_inventory: HashMap<ResourceType, u32>, //stackable
     pub weapons_inventory: HashSet<WeaponType>,
@@ -65,4 +65,15 @@ pub fn has_resources(inventory: &Inventory, requirements: &[(ResourceType, u32)]
 /// Add a weapon to the inventory. Returns false if already owned.
 pub fn add_weapon(inventory: &mut Inventory, weapon: WeaponType) -> bool {
     inventory.weapons_inventory.insert(weapon)
+}
+
+impl Default for Inventory{
+    fn default() -> Self{
+        let mut weapons_inventory = HashSet::new();                                                        
+        weapons_inventory.insert(WeaponType::Pistol);
+        Self {
+            resource_inventory: HashMap::new(),
+            weapons_inventory,
+        }
+    }
 }
