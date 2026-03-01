@@ -1,11 +1,9 @@
-use std::time::Duration;
-
 use bevy::prelude::*;
 use crate::inventory::Inventory;
 use crate::physics::CircleHitBox;
 use crate::player::Player;
 use crate::ascii_sprite::AsciiSprite;
-use crate::combat::{Health, HealthBar, ProjectileConfig, Weapon};
+use crate::combat::{Health, HealthBar, Weapon, WeaponType};
 
 pub fn spawn_player(
     mut commands: Commands,
@@ -21,10 +19,7 @@ pub fn spawn_player(
                 bg_color: None
             },
             Player,
-            Weapon {
-                config: ProjectileConfig::player_bullet(),
-                fire_cooldown: Timer::new(Duration::from_secs_f32(0.3) , TimerMode::Repeating)
-            },
+            Weapon::from_type(WeaponType::Pistol),
             CircleHitBox { radius: 10.0 },
             Health::new(10),
             HealthBar { max_width: 32.0, offset: 24.0 },

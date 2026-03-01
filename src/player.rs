@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 use crate::state::GameState;
 use crate::camera::GameCamera;
-use crate::combat::{spawn_player_projectile, Weapon};
+use crate::combat::{spawn_player_projectile, FirePattern, Weapon};
 
 
 #[derive(Component)]
@@ -73,14 +73,37 @@ fn player_shoot(
             .and_then(|cursor| cam.viewport_to_world(cam_transform, cursor).ok())
             .map(|ray| ray.origin.truncate())
         {
-            //direction we are shooting
             let direction = (cursor_world - transform.translation.truncate()).normalize();
-            spawn_player_projectile(
-                &mut commands,
-                transform.translation.truncate(),
-                direction,
-                &weapon.config,
-            );
+
+            match weapon.fire_pattern {
+                FirePattern::Single => {
+                    spawn_player_projectile(
+                        &mut commands,
+                        transform.translation.truncate(),
+                        direction,
+                        &weapon.config,
+                    );
+                }
+                FirePattern::Spread { count, angle_degrees } => {
+                    let total_rad = angle_degrees.to_radians();
+                    let step = total_rad / (count - 1).max(1) as f32;
+                    let start = -total_rad / 2.0;
+
+                    for i in 0..count {
+                        let angle = start + step * i as f32;
+                        let rotated = Vec2::new(
+                            direction.x * angle.cos() - direction.y * angle.sin(),
+                            direction.x * angle.sin() + direction.y * angle.cos(),
+                        );
+                        spawn_player_projectile(
+                            &mut commands,
+                            transform.translation.truncate(),
+                            rotated,
+                            &weapon.config,
+                        );
+                    }
+                }
+            }
         }
     }
 }
