@@ -103,7 +103,6 @@ pub fn despawn_hotbar(mut commands: Commands, query: Query<Entity, With<Hotbar>>
 /// A displayable item in the hotbar (resource or weapon)
 enum HotbarItem {
     Resource { glyph: &'static str, color: Color, count: u32 },
-    Weapon { glyph: &'static str, color: Color },
 }
 
 /// Syncs the hotbar display with the player's inventory
@@ -129,17 +128,6 @@ pub fn update_hotbar(
         ));
     }
 
-    // Add weapons
-    for weapon_type in &inventory.weapons_inventory {
-        items.push((
-            weapon_type.name(),
-            HotbarItem::Weapon {
-                glyph: weapon_type.glyph(),
-                color: weapon_type.color(),
-            },
-        ));
-    }
-
     // Sort by name for consistent ordering
     items.sort_by_key(|(name, _)| *name);
 
@@ -147,8 +135,8 @@ pub fn update_hotbar(
     for (mut text, mut color, glyph) in &mut glyphs {
         if let Some((_, item)) = items.get(glyph.0) {
             match item {
-                HotbarItem::Resource { glyph: g, color: c, .. } |
-                HotbarItem::Weapon { glyph: g, color: c } => {
+                HotbarItem::Resource { glyph: g, color: c, .. } => 
+                {
                     **text = (*g).into();
                     *color = TextColor(*c);
                 }
@@ -164,9 +152,6 @@ pub fn update_hotbar(
             match item {
                 HotbarItem::Resource { count, .. } => {
                     **text = count.to_string();
-                }
-                HotbarItem::Weapon { .. } => {
-                    **text = String::new(); // weapons don't stack
                 }
             }
         } else {
