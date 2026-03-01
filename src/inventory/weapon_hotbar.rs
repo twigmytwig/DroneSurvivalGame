@@ -1,10 +1,8 @@
 use bevy::prelude::*;
 
-use crate::{inventory::Inventory, player::Player};
+use crate::{inventory::{Inventory, WEAPON_SLOTS}, player::Player};
 
-pub const WEAPON_HOTBAR_SLOTS: usize = 3;
-
-/// Root container for the weapn hotbar UI
+/// Root container for the weapon hotbar UI
 #[derive(Component)]
 pub struct WeaponHotbar;
 
@@ -15,10 +13,6 @@ pub struct WeaponHotbarSlot(pub usize);
 /// Marks the glyph/icon display for a slot (update this to change displayed item)
 #[derive(Component)]
 pub struct WeaponHotbarGlyph(pub usize);
-
-enum WeaponHotbarItem {
-    Weapon { glyph: &'static str, color: Color },
-}
 
 pub fn despawn_weapon_hotbar(mut commands: Commands, query: Query<Entity, With<WeaponHotbar>>) {
     for entity in query.iter() {
@@ -39,7 +33,7 @@ pub fn spawn_weapon_hotbar(mut commands: Commands){
         ..default()
     },
     )).with_children(|parent| {
-        for i in 0..WEAPON_HOTBAR_SLOTS {
+        for i in 0..WEAPON_SLOTS {
             spawn_weapon_hotbar_slot(parent, i);
         }
     });
@@ -75,37 +69,26 @@ fn spawn_weapon_hotbar_slot(parent: &mut ChildSpawnerCommands, slot_index: usize
 pub fn update_weapon_hotbar(
     player_query: Query<&Inventory, With<Player>>,
     mut glyphs: Query<(&mut Text, &mut TextColor, &WeaponHotbarGlyph)>,
+    mut slots: Query<(&mut BackgroundColor, &WeaponHotbarSlot)>,
 ) {
     let Ok(inventory) = player_query.single() else { return };
 
-    // Collect all items into a unified list
-    let mut items: Vec<(&str, WeaponHotbarItem)> = Vec::new();
-
-    //TODO: this adds weapons to main hotbar, need to add to weapons hotbar 
-    for weapon_type in &inventory.weapons_inventory {
-        items.push((
-            weapon_type.name(),
-            WeaponHotbarItem::Weapon {
-                glyph: weapon_type.glyph(),
-                color: weapon_type.color(),
-            },
-        ));
-    }
-
-    // Sort by name for consistent ordering
-    items.sort_by_key(|(name, _)| *name);
-
-    // Update glyphs
+    // Update glyphs from weapon slots
     for (mut text, mut color, glyph) in &mut glyphs {
-        if let Some((_, item)) = items.get(glyph.0) {
-            match item {
-                WeaponHotbarItem::Weapon { glyph: g, color: c } => {
-                    **text = (*g).into();
-                    *color = TextColor(*c);
-                }
-            }
+        if let Some(Some(weapon_type)) = inventory.weapon_slots.get(glyph.0) {
+            **text = weapon_type.glyph().into();
+            *color = TextColor(weapon_type.color());
         } else {
             **text = String::new();
+        }
+    }
+
+    // Highlight active slot yellow, inactive gray
+    for (mut bg, slot) in &mut slots {
+        if slot.0 == inventory.active_weapon_slot {
+            *bg = BackgroundColor(Color::srgba(0.8, 0.8, 0.0, 0.9));
+        } else {
+            *bg = BackgroundColor(Color::srgba(0.2, 0.2, 0.2, 0.9));
         }
     }
 }

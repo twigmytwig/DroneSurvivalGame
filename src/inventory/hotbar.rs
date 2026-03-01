@@ -1,6 +1,5 @@
 use bevy::prelude::*;
 use bevy::ecs::hierarchy::ChildSpawnerCommands;
-use crate::combat::WeaponType;
 use crate::inventory::Inventory;
 use crate::player::Player;
 use crate::resources::ResourceType;

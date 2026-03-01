@@ -1,12 +1,14 @@
-use bevy::{platform::collections::HashSet, prelude::*};
+use bevy::prelude::*;
 use std::collections::HashMap;
 use crate::{combat::WeaponType, resources::ResourceType};
+
+pub const WEAPON_SLOTS: usize = 3;
 
 #[derive(Component)]
 pub struct Inventory{
     pub resource_inventory: HashMap<ResourceType, u32>, //stackable
-    pub weapons_inventory: HashSet<WeaponType>,
-    //weapon inventory or anything else would be a separate hashmap
+    pub weapon_slots: [Option<WeaponType>; WEAPON_SLOTS],
+    pub active_weapon_slot: usize,
 }
 
 pub fn read_resource_inventory(inventory: &Inventory){
@@ -21,13 +23,11 @@ pub fn read_resource_inventory(inventory: &Inventory){
 }
 
 pub fn read_weapon_inventory(inventory: &Inventory) {
-    if inventory.weapons_inventory.is_empty() {
-        info!("WeaponsInventory is empty");
-        return;
-    }
-
-    for weapon_type in inventory.weapons_inventory.iter() {
-        info!("{},", weapon_type.name());
+    for (i, slot) in inventory.weapon_slots.iter().enumerate() {
+        match slot {
+            Some(weapon_type) => info!("Slot {}: {}", i + 1, weapon_type.name()),
+            None => info!("Slot {}: Empty", i + 1),
+        }
     }
 }
 
@@ -62,18 +62,38 @@ pub fn has_resources(inventory: &Inventory, requirements: &[(ResourceType, u32)]
     true
 }
 
-/// Add a weapon to the inventory. Returns false if already owned.
-pub fn add_weapon(inventory: &mut Inventory, weapon: WeaponType) -> bool {
-    inventory.weapons_inventory.insert(weapon)
+/// Add a weapon to the first empty slot. Returns the slot index, or None if full.
+pub fn add_weapon(inventory: &mut Inventory, weapon: WeaponType) -> Option<usize> {
+    // Don't add duplicates
+    if inventory.weapon_slots.iter().any(|s| *s == Some(weapon)) {
+        return None;
+    }
+    // Find first empty slot
+    for (i, slot) in inventory.weapon_slots.iter_mut().enumerate() {
+        if slot.is_none() {
+            *slot = Some(weapon);
+            return Some(i);
+        }
+    }
+    None
 }
 
-impl Default for Inventory{
-    fn default() -> Self{
-        let mut weapons_inventory = HashSet::new();                                                        
-        weapons_inventory.insert(WeaponType::Pistol);
+/// Get the weapon in a specific slot
+pub fn weapon_at_slot(inventory: &Inventory, slot: usize) -> Option<WeaponType> {
+    inventory.weapon_slots.get(slot).copied().flatten()
+}
+
+/// Get the currently active weapon
+pub fn active_weapon(inventory: &Inventory) -> Option<WeaponType> {
+    weapon_at_slot(inventory, inventory.active_weapon_slot)
+}
+
+impl Default for Inventory {
+    fn default() -> Self {
         Self {
             resource_inventory: HashMap::new(),
-            weapons_inventory,
+            weapon_slots: [Some(WeaponType::Pistol), None, None],
+            active_weapon_slot: 0,
         }
     }
 }

@@ -57,7 +57,7 @@ pub fn try_craft(inventory: &mut Inventory, recipe: &Recipe) -> CraftResult {
     // Add the crafted item
     match &recipe.output {
         CraftableItem::Weapon(weapon_type) => {
-            if !add_weapon(inventory, *weapon_type) {
+            if add_weapon(inventory, *weapon_type).is_none() {
                 // Already owned - but we already deducted resources, this shouldn't happen
                 // In a real game you'd check this before deducting
                 return CraftResult::AlreadyOwned;
