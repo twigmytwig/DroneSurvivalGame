@@ -5,7 +5,6 @@ use crate::crafting::try_craft;
 use crate::inventory::has_resources;
 use crate::state::GameState;
 use crate::inventory::Inventory;
-use crate::inventory::read_resource_inventory;
 use crate::player::Player;
 use super::recipe::{Recipe, ALL_RECIPES};
 
@@ -292,7 +291,7 @@ pub fn update_crafting_ui(
     // Update craft button colors
     for (mut bg_color, CraftButtonBg(recipe_idx)) in &mut button_bgs {
         let recipe = &ALL_RECIPES[*recipe_idx];
-        let can_craft = has_resources(&inventory, recipe.ingredients);
+        let can_craft = has_resources(inventory, recipe.ingredients);
 
         *bg_color = if can_craft {
             BackgroundColor(Color::srgb(0.2, 0.5, 0.2)) // Green
