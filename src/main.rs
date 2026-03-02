@@ -14,6 +14,7 @@ mod state;
 mod inventory;
 mod audio;
 mod crafting;
+mod building;
 
 use camera::CameraPlugin;
 use audio::settings::AudioSettings;
