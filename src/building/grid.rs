@@ -1,7 +1,7 @@
 use bevy::platform::collections::HashMap;
 use bevy::prelude::*;
 
-pub const GRID_CELL_SIZE: u32 = 32;
+pub const GRID_CELL_SIZE: u32 = 64;
 
 // (i32,i32) is like a grid coordinate
 #[derive(Resource, Default)]

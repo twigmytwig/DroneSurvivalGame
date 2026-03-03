@@ -6,7 +6,7 @@ use crate::player::Player;
 use super::grid::{BuildGrid, world_to_grid, grid_to_world, GRID_CELL_SIZE};
 use super::placeable::{PlaceableConfig, PlaceableType, spawn_structure};
 
-const GRID_EXTENT: i32 = 5; // 11x11 grid (5 cells in each direction from center)
+const GRID_EXTENT: i32 = 20; // 11x11 grid (5 cells in each direction from center)
 const LINE_COLOR: Color = Color::srgba(1.0, 1.0, 1.0, 0.15);
 const LINE_THICKNESS: f32 = 1.0;
 

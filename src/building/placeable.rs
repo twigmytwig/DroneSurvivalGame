@@ -66,7 +66,7 @@ pub struct PlaceableConfig {
     pub glyph: String,
     pub color: Color,
     pub font_size: f32,
-    pub health: Option<u32>,           // None = invincible
+    pub health: Option<u32>,           // None = invincibl
     pub hitbox_radius: Option<f32>,    // None = no collision
     pub behaviors: Vec<BehaviorConfig>, // empty for passive structures
     // beacon-specific
