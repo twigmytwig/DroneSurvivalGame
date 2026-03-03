@@ -1,10 +1,10 @@
 use bevy::platform::collections::HashMap;
 use bevy::prelude::*;
 
-const GRID_CELL_SIZE: u32 = 32;
+pub const GRID_CELL_SIZE: u32 = 32;
 
 // (i32,i32) is like a grid coordinate
-#[derive(Resource)]
+#[derive(Resource, Default)]
 pub struct BuildGrid{
     pub occupied_cells: HashMap<(i32,i32), Entity>,
 }

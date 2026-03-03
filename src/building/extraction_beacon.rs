@@ -12,7 +12,7 @@ impl ExtractionBeacon {
 }
 
 //when the beacon is 'full charge' the player wins
-fn tick_beacon_charge(
+pub fn tick_beacon_charge(
     mut beacon_query: Query<&mut ExtractionBeacon>, //can only place one?
     time: Res<Time>,
     mut next_state: ResMut<NextState<GameState>>,

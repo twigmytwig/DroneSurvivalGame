@@ -74,7 +74,15 @@ pub struct PlaceableConfig {
 }
 
 impl PlaceableConfig {
-    pub fn extraction_beacon() -> Self { 
+    pub fn from_type(placeable_type: &PlaceableType) -> Self {
+        match placeable_type {
+            PlaceableType::ExtractionBeacon => Self::extraction_beacon(),
+            PlaceableType::Turret => todo!("Turret config"),
+            PlaceableType::Wall => todo!("Wall config"),
+        }
+    }
+
+    pub fn extraction_beacon() -> Self {
         Self{
             kind: PlaceableType::ExtractionBeacon,
             name: "Extraction Beacon".to_string(),
