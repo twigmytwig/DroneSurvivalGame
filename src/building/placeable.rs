@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{ascii_sprite::AsciiSprite, combat::Health, physics::CircleHitBox, spawning::BehaviorConfig};
+use super::extraction_beacon::ExtractionBeacon;
 
 pub enum PlaceableType{
     ExtractionBeacon,
@@ -50,10 +51,8 @@ pub fn spawn_structure(
         }
     }
 
-    // Beacon-specific: attach ExtractionBeacon component with charge timer
     if let Some(charge_secs) = config.charge_time_secs {
-        // TODO: entity.insert(ExtractionBeacon::new(charge_secs));
-        // ExtractionBeacon component defined in extraction_beacon.rs (Step 3)
+        entity.insert(ExtractionBeacon::new(charge_secs));
     }
 
     entity.id()
