@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{ascii_sprite::AsciiSprite, combat::Health, physics::CircleHitBox, spawning::BehaviorConfig};
+use crate::{ascii_sprite::AsciiSprite, combat::{Health, HealthBar}, physics::CircleHitBox, spawning::BehaviorConfig};
 use super::extraction_beacon::ExtractionBeacon;
 
 #[derive(Clone, Copy, Hash, PartialEq, Eq)]
@@ -35,6 +35,9 @@ pub fn spawn_structure(
 
     if let Some(health) = config.health {
         entity.insert(Health::new(health));
+        if config.has_health_bar{
+            entity.insert(HealthBar{max_width: 32.0, offset: 24.0}); //TODO: FIX HARD CODED VALUES
+        }
     }
 
     // Attach behaviors (for turrets later - note: turrets need different targeting than drones)
@@ -68,6 +71,7 @@ pub struct PlaceableConfig {
     pub color: Color,
     pub font_size: f32,
     pub health: Option<u32>,           // None = invincibl
+    pub has_health_bar: bool,
     pub hitbox_radius: Option<f32>,    // None = no collision
     pub behaviors: Vec<BehaviorConfig>, // empty for passive structures
     // beacon-specific
@@ -94,6 +98,7 @@ impl PlaceableConfig {
             hitbox_radius: Some(12.0),
             behaviors: vec![], 
             charge_time_secs: Some(60.0),
+            has_health_bar: true,
         }
     }
     pub fn wall() -> Self {
@@ -107,6 +112,7 @@ impl PlaceableConfig {
             hitbox_radius: Some(16.0),
             behaviors: vec![],
             charge_time_secs: None,
+            has_health_bar: true,
         }
     }
     //pub fn turret() -> Self { ... }  // later

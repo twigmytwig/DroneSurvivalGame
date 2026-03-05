@@ -14,7 +14,7 @@ pub fn spawn_player(
         let mut inventory = Inventory::default();
         // TODO: remove test items
         add_placeable(&mut inventory, PlaceableType::ExtractionBeacon, 1);
-        add_placeable(&mut inventory, PlaceableType::Wall, 1);
+        add_placeable(&mut inventory, PlaceableType::Wall, 4);
 
         commands.spawn((
             Transform::from_xyz(0.0, 0.0, 0.0),
