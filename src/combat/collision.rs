@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use crate::building::Structure;
 use crate::combat::Dead;
 use crate::enemy::Enemy;
 use crate::npc_behaviors::ExplodeOnContact;
@@ -115,6 +116,64 @@ fn enemy_collides_with_player(
     }
 }
 
+// Enemy bullets hit structures
+fn enemy_projectile_hits_structure(
+    mut commands: Commands,
+    mut damage_messages: MessageWriter<DamageEvent>,
+    projectiles: Query<(Entity, &Transform, &CircleHitBox, &ProjectileDamage), (With<Projectile>, With<EnemyOwned>)>,
+    structures: Query<(Entity, &Transform, &CircleHitBox), With<Structure>>,
+) {
+    for (proj_entity, proj_transform, proj_hitbox, proj_damage) in &projectiles {
+        for (structure_entity, structure_transform, structure_hitbox) in &structures {
+            if circles_overlap(
+                proj_transform.translation.truncate(),
+                proj_hitbox.radius,
+                structure_transform.translation.truncate(),
+                structure_hitbox.radius,
+            ) {
+                commands.entity(proj_entity).despawn();
+                damage_messages.write(DamageEvent {
+                    target: structure_entity,
+                    amount: proj_damage.0,
+                });
+                break;
+            }
+        }
+    }
+}
+
+// Exploding enemies damage structures on contact
+fn enemy_collides_with_structure(
+    mut commands: Commands,
+    mut damage_messages: MessageWriter<DamageEvent>,
+    enemies: Query<(Entity, &Transform, &CircleHitBox, Option<&ExplodeOnContact>), (With<Enemy>, Without<Dead>)>,
+    structures: Query<(Entity, &Transform, &CircleHitBox), With<Structure>>,
+) {
+    for (enemy_entity, enemy_transform, enemy_hitbox, explode) in &enemies {
+        for (structure_entity, structure_transform, structure_hitbox) in &structures {
+            if circles_overlap(
+                enemy_transform.translation.truncate(),
+                enemy_hitbox.radius,
+                structure_transform.translation.truncate(),
+                structure_hitbox.radius,
+            ) {
+                if explode.is_some() {
+                    commands.entity(enemy_entity).insert(Dead);
+                    damage_messages.write(DamageEvent {
+                        target: structure_entity,
+                        amount: 5,
+                    });
+                    damage_messages.write(DamageEvent {
+                        target: enemy_entity,
+                        amount: 9999,
+                    });
+                    break;
+                }
+            }
+        }
+    }
+}
+
 pub struct CollisionPlugin;
 
 impl Plugin for CollisionPlugin {
@@ -122,6 +181,8 @@ impl Plugin for CollisionPlugin {
         app
             .add_systems(Update, enemy_projectile_hits_player.run_if(in_state(GameState::Playing)))
             .add_systems(Update, player_projectile_hits_enemy.run_if(in_state(GameState::Playing)))
-            .add_systems(Update, enemy_collides_with_player.run_if(in_state(GameState::Playing)));
+            .add_systems(Update, enemy_collides_with_player.run_if(in_state(GameState::Playing)))
+            .add_systems(Update, enemy_projectile_hits_structure.run_if(in_state(GameState::Playing)))
+            .add_systems(Update, enemy_collides_with_structure.run_if(in_state(GameState::Playing)));
     }
 }

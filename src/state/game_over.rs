@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 
 use crate::audio::{AudioSettings, MusicTrack, play_music, stop_music};
+use crate::building::{BuildGrid, BuildMode, Structure, GridOverlay, GhostPreview};
 use crate::combat::Projectile;
 use crate::enemy::Enemy;
 use crate::player::Player;
@@ -68,7 +69,12 @@ pub fn cleanup_game_entities(
     enemies: Query<Entity, With<Enemy>>,
     projectiles: Query<Entity, With<Projectile>>,
     resources: Query<Entity, With<ResourceDrop>>,
+    structures: Query<Entity, With<Structure>>,
+    overlays: Query<Entity, With<GridOverlay>>,
+    ghosts: Query<Entity, With<GhostPreview>>,
     mut wave_state: ResMut<WaveState>,
+    mut build_grid: ResMut<BuildGrid>,
+    mut build_mode: ResMut<BuildMode>,
 ) {
     for entity in players.iter() {
         commands.entity(entity).despawn();
@@ -82,9 +88,20 @@ pub fn cleanup_game_entities(
     for entity in resources.iter() {
         commands.entity(entity).despawn();
     }
+    for entity in structures.iter() {
+        commands.entity(entity).despawn();
+    }
+    for entity in overlays.iter() {
+        commands.entity(entity).despawn();
+    }
+    for entity in ghosts.iter() {
+        commands.entity(entity).despawn();
+    }
 
-    // Reset wave state for next game
+    // Reset state for next game
     *wave_state = WaveState::default();
+    *build_grid = BuildGrid::default();
+    *build_mode = BuildMode::default();
 
     info!("Game entities cleaned up");
 }

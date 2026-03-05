@@ -1,5 +1,6 @@
 use bevy::prelude::*;
-use crate::inventory::Inventory;
+use crate::building::PlaceableType;
+use crate::inventory::{Inventory, add_placeable};
 use crate::physics::CircleHitBox;
 use crate::player::Player;
 use crate::ascii_sprite::AsciiSprite;
@@ -10,6 +11,11 @@ pub fn spawn_player(
     players: Query<Entity, With<Player>>
 ) {
     if players.count() == 0{
+        let mut inventory = Inventory::default();
+        // TODO: remove test items
+        add_placeable(&mut inventory, PlaceableType::ExtractionBeacon, 1);
+        add_placeable(&mut inventory, PlaceableType::Wall, 1);
+
         commands.spawn((
             Transform::from_xyz(0.0, 0.0, 0.0),
             AsciiSprite {
@@ -23,8 +29,8 @@ pub fn spawn_player(
             CircleHitBox { radius: 10.0 },
             Health::new(10),
             HealthBar { max_width: 32.0, offset: 24.0 },
-            Inventory::default(),
+            inventory,
         ));
     }
-    
+
 }

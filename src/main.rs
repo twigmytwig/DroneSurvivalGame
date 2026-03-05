@@ -14,6 +14,7 @@ mod state;
 mod inventory;
 mod audio;
 mod crafting;
+mod building;
 
 use camera::CameraPlugin;
 use audio::settings::AudioSettings;
@@ -37,6 +38,7 @@ fn main() {
         .add_plugins(NpcBehaviorPlugins)
         .add_plugins(ResourcePlugin)
         .add_plugins(PickupPlugin)
+        .add_plugins(building::BuildingPlugin)
         .init_resource::<DropTable>()
         .init_resource::<AudioSettings>()
         .add_systems(Update, render_ascii_sprites)

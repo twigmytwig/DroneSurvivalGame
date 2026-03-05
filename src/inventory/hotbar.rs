@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 use bevy::ecs::hierarchy::ChildSpawnerCommands;
+use crate::building::PlaceableConfig;
 use crate::inventory::Inventory;
 use crate::player::Player;
 use crate::resources::ResourceType;
@@ -99,9 +100,11 @@ pub fn despawn_hotbar(mut commands: Commands, query: Query<Entity, With<Hotbar>>
     }
 }
 
-/// A displayable item in the hotbar (resource or weapon)
-enum HotbarItem {
-    Resource { glyph: &'static str, color: Color, count: u32 },
+/// A displayable item in the hotbar
+struct HotbarItem {
+    glyph: &'static str,
+    color: Color,
+    count: u32,
 }
 
 /// Syncs the hotbar display with the player's inventory
@@ -119,9 +122,22 @@ pub fn update_hotbar(
     for (resource_type, &count) in &inventory.resource_inventory {
         items.push((
             resource_type.name(),
-            HotbarItem::Resource {
+            HotbarItem {
                 glyph: resource_type.glyph(),
                 color: resource_type.color(),
+                count,
+            },
+        ));
+    }
+
+    // Add placeables
+    for (placeable_type, &count) in &inventory.placeable_inventory {
+        let config = PlaceableConfig::from_type(placeable_type);
+        items.push((
+            config.name,
+            HotbarItem {
+                glyph: config.glyph,
+                color: config.color,
                 count,
             },
         ));
@@ -133,13 +149,8 @@ pub fn update_hotbar(
     // Update glyphs
     for (mut text, mut color, glyph) in &mut glyphs {
         if let Some((_, item)) = items.get(glyph.0) {
-            match item {
-                HotbarItem::Resource { glyph: g, color: c, .. } => 
-                {
-                    **text = (*g).into();
-                    *color = TextColor(*c);
-                }
-            }
+            **text = item.glyph.into();
+            *color = TextColor(item.color);
         } else {
             **text = String::new();
         }
@@ -148,11 +159,7 @@ pub fn update_hotbar(
     // Update counts
     for (mut text, count_marker) in &mut counts {
         if let Some((_, item)) = items.get(count_marker.0) {
-            match item {
-                HotbarItem::Resource { count, .. } => {
-                    **text = count.to_string();
-                }
-            }
+            **text = item.count.to_string();
         } else {
             **text = String::new();
         }

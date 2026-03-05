@@ -1,8 +1,9 @@
 use bevy::prelude::*;
 
 use crate::{
+    building::PlaceableType,
     combat::WeaponType,
-    inventory::{Inventory, has_resources, remove_resource, add_weapon},
+    inventory::{Inventory, has_resources, remove_resource, add_weapon, add_placeable},
     resources::ResourceType,
 };
 
@@ -64,8 +65,8 @@ pub fn try_craft(inventory: &mut Inventory, recipe: &Recipe) -> CraftResult {
             }
         }
         CraftableItem::Beacon => {
-            // TODO: Handle beacon crafting (trigger win condition or event)
-            info!("Beacon crafted! Handle win condition here.");
+            add_placeable(inventory, PlaceableType::ExtractionBeacon, 1);
+            info!("Beacon crafted! Press B to enter build mode and place it.");
         }
     }
 

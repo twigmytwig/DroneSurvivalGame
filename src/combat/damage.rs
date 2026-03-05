@@ -4,6 +4,7 @@
 use bevy::prelude::*;
 use rand::{Rng, RngExt};
 use crate::{
+    building::{BuildGrid, Structure},
     player::Player,
     resources::DropTable,
     spawning::{DroneType, spawn_resources},
@@ -49,6 +50,8 @@ fn apply_death(
     mut death_messages: MessageReader<DeathEvent>,
     mut next_state: ResMut<NextState<GameState>>,
     drone_query: Query<(&DroneType, &Transform)>,
+    structure_query: Query<&Transform, With<Structure>>,
+    mut build_grid: ResMut<BuildGrid>,
     drop_table: Res<DropTable>,
     player: Single<Entity, With<Player>>,
 ) {
@@ -59,7 +62,14 @@ fn apply_death(
             commands.entity(event.entity).try_despawn();
             //game over phase
             next_state.set(GameState::GameOver);
-            continue; // Don't try to despawn again at end of loop
+            continue;
+        }
+
+        // If it's a structure, remove from grid
+        if let Ok(transform) = structure_query.get(event.entity) {
+            let grid_pos = crate::building::world_to_grid(transform.translation.truncate());
+            build_grid.occupied_cells.remove(&grid_pos);
+            info!("Structure destroyed at {:?}", grid_pos);
         }
 
         // Check if it's a drone and spawn resources
