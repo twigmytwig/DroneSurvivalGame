@@ -3,6 +3,7 @@ use bevy::prelude::*;
 use crate::{ascii_sprite::AsciiSprite, combat::Health, physics::CircleHitBox, spawning::BehaviorConfig};
 use super::extraction_beacon::ExtractionBeacon;
 
+#[derive(Clone, Copy, Hash, PartialEq, Eq)]
 pub enum PlaceableType{
     ExtractionBeacon,
     Turret,
@@ -20,7 +21,7 @@ pub fn spawn_structure(
     let mut entity = commands.spawn((
         Transform::from_translation(pos.extend(0.0)),
         AsciiSprite {
-            glyph: config.glyph.clone(),
+            glyph: config.glyph.to_string(),
             color: config.color,
             font_size: config.font_size,
             bg_color: None,
@@ -62,8 +63,8 @@ pub fn spawn_structure(
 //todo: WHAT IF some things want a health bar like turrets
 pub struct PlaceableConfig {
     pub kind: PlaceableType,
-    pub name: String,
-    pub glyph: String,
+    pub name: &'static str,
+    pub glyph: &'static str,
     pub color: Color,
     pub font_size: f32,
     pub health: Option<u32>,           // None = invincibl
@@ -78,15 +79,15 @@ impl PlaceableConfig {
         match placeable_type {
             PlaceableType::ExtractionBeacon => Self::extraction_beacon(),
             PlaceableType::Turret => todo!("Turret config"),
-            PlaceableType::Wall => todo!("Wall config"),
+            PlaceableType::Wall => Self::wall(),
         }
     }
 
     pub fn extraction_beacon() -> Self {
         Self{
             kind: PlaceableType::ExtractionBeacon,
-            name: "Extraction Beacon".to_string(),
-            glyph: "/*\\".to_string(),
+            name: "Extraction Beacon",
+            glyph: "/*\\",
             color: Color::WHITE,
             font_size: 24.0,
             health: Some(100),
@@ -95,6 +96,18 @@ impl PlaceableConfig {
             charge_time_secs: Some(60.0),
         }
     }
+    pub fn wall() -> Self {
+        Self {
+            kind: PlaceableType::Wall,
+            name: "Wall",
+            glyph: "#",
+            color: Color::linear_rgb(1.0, 20.0, 100.0),
+            font_size: 48.0,
+            health: Some(50),
+            hitbox_radius: Some(16.0),
+            behaviors: vec![],
+            charge_time_secs: None,
+        }
+    }
     //pub fn turret() -> Self { ... }  // later
-    //pub fn wall() -> Self { ... }    // later
 }

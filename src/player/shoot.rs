@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
+use crate::building::BuildMode;
 use crate::camera::GameCamera;
 use crate::combat::{spawn_player_projectile, FirePattern, Weapon};
 use super::Player;
@@ -11,11 +12,17 @@ pub fn player_shoot(
     window: Single<&Window, With<PrimaryWindow>>,
     camera: Single<(&Camera, &GlobalTransform), With<GameCamera>>,
     player: Single<(&Transform, &mut Weapon), With<Player>>,
+    build_mode: Res<BuildMode>,
 ){
     let (transform, mut weapon) = player.into_inner();
 
     // Always tick cooldown
     weapon.fire_cooldown.tick(time.delta());
+
+    // Don't shoot while in build mode
+    if build_mode.selected.is_some() {
+        return;
+    }
 
     // Fire if holding mouse AND cooldown ready
     if input.pressed(MouseButton::Left) && weapon.fire_cooldown.just_finished() {

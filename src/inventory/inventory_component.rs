@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use std::collections::HashMap;
-use crate::{combat::WeaponType, resources::ResourceType};
+use crate::{building::PlaceableType, combat::WeaponType, resources::ResourceType};
 
 pub const WEAPON_SLOTS: usize = 3;
 
@@ -9,6 +9,7 @@ pub struct Inventory{
     pub resource_inventory: HashMap<ResourceType, u32>, //stackable
     pub weapon_slots: [Option<WeaponType>; WEAPON_SLOTS],
     pub active_weapon_slot: usize,
+    pub placeable_inventory: HashMap<PlaceableType, u32>, //stackable
 }
 
 pub fn read_resource_inventory(inventory: &Inventory){
@@ -88,12 +89,41 @@ pub fn active_weapon(inventory: &Inventory) -> Option<WeaponType> {
     weapon_at_slot(inventory, inventory.active_weapon_slot)
 }
 
+pub fn add_placeable(inventory: &mut Inventory, placeable: PlaceableType, count: u32) {
+    *inventory.placeable_inventory.entry(placeable).or_insert(0) += count;
+}
+
+pub fn remove_placeable(inventory: &mut Inventory, placeable: PlaceableType) -> bool {
+    if let Some(cur_count) = inventory.placeable_inventory.get_mut(&placeable) {
+        if *cur_count > 0 {
+            *cur_count -= 1;
+            if *cur_count == 0 {
+                inventory.placeable_inventory.remove(&placeable);
+            }
+            return true;
+        }
+    }
+    false
+}
+
+pub fn has_placeable(inventory: &Inventory, placeable: PlaceableType) -> bool {
+    inventory.placeable_inventory.get(&placeable).copied().unwrap_or(0) > 0
+}
+
+/// Returns the first PlaceableType the player has in inventory, if any
+pub fn first_available_placeable(inventory: &Inventory) -> Option<PlaceableType> {
+    inventory.placeable_inventory.iter()
+        .find(|(_, count)| **count > 0)
+        .map(|(kind, _)| *kind)
+}
+
 impl Default for Inventory {
     fn default() -> Self {
         Self {
             resource_inventory: HashMap::new(),
             weapon_slots: [Some(WeaponType::Pistol), None, None],
             active_weapon_slot: 0,
+            placeable_inventory: HashMap::new(),
         }
     }
 }

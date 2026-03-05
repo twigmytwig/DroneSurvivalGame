@@ -19,9 +19,12 @@ impl Plugin for BuildingPlugin {
             .init_resource::<BuildMode>()
             .add_systems(Update, (
                 build_mode::toggle_build_mode,
+                build_mode::cycle_placeable,
                 build_mode::manage_grid_overlay,
                 build_mode::update_grid_overlay_position,
                 build_mode::update_ghost_preview,
+            ).run_if(in_state(GameState::Playing)))
+            .add_systems(Update, (
                 build_mode::place_structure,
                 extraction_beacon::tick_beacon_charge,
             ).run_if(in_state(GameState::Playing)));
