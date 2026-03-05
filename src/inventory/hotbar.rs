@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use bevy::ecs::hierarchy::ChildSpawnerCommands;
 use crate::building::PlaceableConfig;
+use crate::game_fonts::GameFonts;
 use crate::inventory::Inventory;
 use crate::player::Player;
 use crate::resources::ResourceType;
@@ -31,7 +32,8 @@ pub struct HotbarGlyph(pub usize);
 // SPAWN / DESPAWN
 // =============================================================================
 
-pub fn spawn_hotbar(mut commands: Commands) {
+pub fn spawn_hotbar(mut commands: Commands, fonts: Res<GameFonts>) {
+    let font = fonts.mono.clone();
     commands.spawn((
         Hotbar,
         Node {
@@ -45,14 +47,14 @@ pub fn spawn_hotbar(mut commands: Commands) {
         },
     )).with_children(|parent| {
         for i in 0..HOTBAR_SLOTS {
-            spawn_hotbar_slot(parent, i);
+            spawn_hotbar_slot(parent, i, font.clone());
         }
     });
 
     info!("Hotbar spawned");
 }
 
-fn spawn_hotbar_slot(parent: &mut ChildSpawnerCommands, slot_index: usize) {
+fn spawn_hotbar_slot(parent: &mut ChildSpawnerCommands, slot_index: usize, font: Handle<Font>) {
     parent.spawn((
         HotbarSlot(slot_index),
         Node {
@@ -64,22 +66,22 @@ fn spawn_hotbar_slot(parent: &mut ChildSpawnerCommands, slot_index: usize) {
         },
         BackgroundColor(Color::srgba(0.2, 0.2, 0.2, 0.9)),
     )).with_children(|slot: &mut ChildSpawnerCommands| {
-        // Glyph in the center (blank, you populate it)
         slot.spawn((
             HotbarGlyph(slot_index),
             Text::new(""),
             TextFont {
+                font: font.clone(),
                 font_size: 24.0,
                 ..default()
             },
             TextColor(Color::WHITE),
         ));
 
-        // Count in top-right corner (blank, you populate it)
         slot.spawn((
             HotbarCount(slot_index),
             Text::new(""),
             TextFont {
+                font: font.clone(),
                 font_size: 12.0,
                 ..default()
             },
